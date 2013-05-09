@@ -7,6 +7,7 @@
 # require 'rubygems'
 require 'eventmachine'
 require 'eventmachine-tail'
+require 'json'
 require 'pg'
 
 class Traffic
@@ -36,8 +37,8 @@ class Traffic
     @host_bytes[hostname] += bytes
   end
 
-  def update_db
-    puts "update db"
+  def update
+    puts "update"
     time = Time.now
     month, year = time.month, time.year
     @host_bytes.keys.each do |hostname|
@@ -47,6 +48,8 @@ class Traffic
         @db.exec("INSERT INTO traffic (hostname, month, year, bytes) VALUES ('#{hostname}', #{month}, #{year}, #{@host_bytes[hostname]})")
       end
     end
+    result = @db.exec('SELECT * FROM traffic')
+    puts '[' + result.map {|r| r.to_json}.join(',') + ']'
   end
 end
 
@@ -78,7 +81,7 @@ def main(args)
       EM::file_tail(path, Reader, traffic)
     end
     EM.add_periodic_timer(traffic.config[:update_interval]) do
-      traffic.update_db
+      traffic.update
     end
   end
 end # def main
