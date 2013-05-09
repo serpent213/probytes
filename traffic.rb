@@ -40,18 +40,21 @@ class Traffic
 
   def update
     puts "update"
-    time = Time.now
-    month, year = time.month, time.year
-    @host_traffic.keys.each do |hostname|
-      result = @db.exec("UPDATE traffic SET requests = requests + #{@host_traffic[hostname][:requests]}, bytes = bytes + #{@host_traffic[hostname][:bytes]} " +
-                        "WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
-      if result.cmd_tuples == 0
-        @db.exec("INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ('#{hostname}', #{month}, #{year}, " +
-                 "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
+    if not @host_traffic.empty?
+      time = Time.now
+      month, year = time.month, time.year
+      @host_traffic.keys.each do |hostname|
+        result = @db.exec("UPDATE traffic SET requests = requests + #{@host_traffic[hostname][:requests]}, bytes = bytes + #{@host_traffic[hostname][:bytes]} " +
+                          "WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
+        if result.cmd_tuples == 0
+          @db.exec("INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ('#{hostname}', #{month}, #{year}, " +
+                   "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
+        end
       end
+      result = @db.exec('SELECT * FROM traffic')
+      puts '[' + result.map {|r| r.to_json}.join(',') + ']'
+      @host_traffic = {}
     end
-    result = @db.exec('SELECT * FROM traffic')
-    puts '[' + result.map {|r| r.to_json}.join(',') + ']'
   end
 end
 
