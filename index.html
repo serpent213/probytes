@@ -2,10 +2,19 @@
 <html>
   <head>
     <title>goodlog</title>
-    <script type="text/javascript" src="data.js"></script>
   </head>
   <body>
     <h1>goodlog traffic</h1>
-    <script type="text/javascript">document.write(traffic)</script>
+    <ul id="hosts"></uL>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        _.each(traffic, function(host) {
+          $('#hosts').append('<li>' + host.hostname + ': ' + host.bytes + '</li>');
+        });
+      });
+    </script>
   </body>
 </html>
