@@ -4,7 +4,7 @@ div.background-image {
   width: 1920px;
   height: 1440px;
   background-image: url("../img/syringe_1920_q20.jpg");
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 div.container {

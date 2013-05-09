@@ -1,6 +1,9 @@
 # goodlogx configuration file
 
 {
+  # FYI
+  :server_name => 'teralink.net',
+
   # expected nginx config:
   #   log_format traffic '$host $request_length $bytes_sent';
   #   access_log /var/log/nginx-traffic.log traffic;

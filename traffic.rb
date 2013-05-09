@@ -62,7 +62,7 @@ class Traffic
   def update_frontend_static
     puts "update frontend static"
     index = Haml::Engine.new(File.read('index.haml'))
-    File.open(@frontend_dir + 'index.html', 'w') {|f| f.write index.render }
+    File.open(@frontend_dir + 'index.html', 'w') {|f| f.write index.render(self) }
     FileUtils.cp_r('js', @frontend_dir)
     FileUtils.cp_r('css', @frontend_dir)
     FileUtils.cp_r('img', @frontend_dir)

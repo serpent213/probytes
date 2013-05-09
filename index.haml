@@ -1,7 +1,8 @@
 !!! 5
 %html
   %head
-    %title= "goodlog"
+    %meta{:charset => "utf-8"}
+    %title= "GoodLog: #{@config[:server_name]}"
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "css/goodlog.css", :rel => "stylesheet", :type => "text/css"}
   %body
@@ -11,7 +12,8 @@
         .navbar-inner
           %span.brand
             %i.icon-align-left
-            GoodLog
+            GoodLog:
+            = @config[:server_name]
           %ul.nav
             %li.dropdown
               %a.dropdown-toggle{:href => "#", :"data-toggle" => "dropdown"}
