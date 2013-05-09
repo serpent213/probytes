@@ -3,19 +3,37 @@
   %head
     %title= "goodlog"
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet", :type => "text/css"}
+    %link{:href => "css/goodlog.css", :rel => "stylesheet", :type => "text/css"}
   %body
+    .background-image
     .container
       .navbar.navbar-inverse
         .navbar-inner
-          %span.brand= "GoodLog"
+          %span.brand
+            %i.icon-align-left
+            GoodLog
           %ul.nav
+            %li.dropdown
+              %a.dropdown-toggle{:href => "#", :"data-toggle" => "dropdown"}
+                2013
+                %b.caret
+              %ul.dropdown-menu
+                %li
+                  %a{:href => "foo"}= "Whole year"
+                %li
+                  %a{:href => "foo"}= "January"
+                %li
+                  %a{:href => "foo"}= "February"
+                %li
+                  %a{:href => "foo"}= "March"
+                %li
+                  %a{:href => "foo"}= "April"
+                %li
+                  %a{:href => "foo"}= "May"
             %li
               %a{:href => "foo"}= "foo"
             %li
               %a{:href => "bar"}= "bar"
-      %h1= "goodlog traffic"
-      -# by month => select
-      -# by year => select
       %ul#hosts
       %script{:src => "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"}
       %script{:src => "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"}

@@ -1,0 +1,12 @@
+div.background-image {
+  position: fixed;
+  z-index: -100;
+  width: 1920px;
+  height: 1440px;
+  background-image: url("../img/syringe_1920_q20.jpg");
+  opacity: 0.3;
+}
+
+div.container {
+  padding-top: 20px;
+}
