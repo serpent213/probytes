@@ -12,10 +12,9 @@ require 'pg'
 
 class Traffic
   attr_reader :config
-  # attr_accessor :host_bytes
 
   def initialize
-    @host_bytes = {}
+    @host_traffic = {}
     @config = eval(File.open('traffic.conf.rb').read)
     puts "config: #{@config}"
     @db = PG::Connection.open(@config[:postgresql])
@@ -24,6 +23,7 @@ class Traffic
                   hostname VARCHAR(200),
                   month INTEGER,
                   year INTEGER,
+                  requests INTEGER,
                   bytes INTEGER,
                   PRIMARY KEY (hostname, month, year)
                 )')
@@ -33,19 +33,21 @@ class Traffic
   end
 
   def increment_host(hostname, bytes)
-    @host_bytes[hostname] ||= 0
-    @host_bytes[hostname] += bytes
+    @host_traffic[hostname] ||= {:requests => 0, :bytes => 0}
+    @host_traffic[hostname][:requests] += 1
+    @host_traffic[hostname][:bytes] += bytes
   end
 
   def update
     puts "update"
     time = Time.now
     month, year = time.month, time.year
-    @host_bytes.keys.each do |hostname|
-      puts "UPDATE traffic SET bytes = bytes + #{@host_bytes[hostname]} WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}"
-      result = @db.exec("UPDATE traffic SET bytes = bytes + #{@host_bytes[hostname]} WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
+    @host_traffic.keys.each do |hostname|
+      result = @db.exec("UPDATE traffic SET requests = requests + #{@host_traffic[hostname][:requests]}, bytes = bytes + #{@host_traffic[hostname][:bytes]} " +
+                        "WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
       if result.cmd_tuples == 0
-        @db.exec("INSERT INTO traffic (hostname, month, year, bytes) VALUES ('#{hostname}', #{month}, #{year}, #{@host_bytes[hostname]})")
+        @db.exec("INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ('#{hostname}', #{month}, #{year}, " +
+                 "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
       end
     end
     result = @db.exec('SELECT * FROM traffic')
@@ -69,7 +71,6 @@ class Reader < EventMachine::FileTail
       bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
       puts "host: #{m["hostname"]} bytes: #{bytes_total}"
       @traffic.increment_host(hostname, bytes_total)
-      # puts "host_bytes: #{@traffic.host_bytes[hostname]}"
     end
   end
 end
