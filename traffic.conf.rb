@@ -6,6 +6,9 @@
   #   access_log /var/log/nginx-traffic.log traffic;
   :logfiles => ['/var/log/nginx-traffic.log'],
 
+  # frontend target directory
+  :frontend_dir => '/var/www/teralink.net/stats',
+
   # createuser -P traffic
   # createdb -E UTF8 -O traffic traffic
   #
@@ -13,5 +16,6 @@
   :postgresql => {:host => 'db.teralink.net', :dbname => 'traffic', :user => 'traffic', :password => 'dev'},
 
   # seconds between db update
+  # recommended range: 10..3600
   :update_interval => 10,
 }

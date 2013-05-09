@@ -1,12 +1,10 @@
 #!/usr/bin/env ruby19
-#
-# Simple 'tail -f' example.
-# Usage example:
-#   tail.rb /var/log/messages
 
-# require 'rubygems'
+# goodlog traffic monitor
+
 require 'eventmachine'
 require 'eventmachine-tail'
+require 'fileutils'
 require 'json'
 require 'pg'
 
@@ -16,6 +14,8 @@ class Traffic
   def initialize
     @host_traffic = {}
     @config = eval(File.open('traffic.conf.rb').read)
+    @frontend_dir = @config[:frontend_dir]
+    @frontend_dir += '/' unless @frontend_dir.match(/\/$/)
     puts "config: #{@config}"
     @db = PG::Connection.open(@config[:postgresql])
     begin
@@ -30,6 +30,8 @@ class Traffic
     rescue PG::Error => e
       # table does exist
     end
+    FileUtils.cp('index.html', @frontend_dir)
+    update_frontend
   end
 
   def increment_host(hostname, bytes)
@@ -38,8 +40,8 @@ class Traffic
     @host_traffic[hostname][:bytes] += bytes
   end
 
-  def update
-    puts "update"
+  def update_stats
+    puts "update stats"
     if not @host_traffic.empty?
       time = Time.now
       month, year = time.month, time.year
@@ -51,10 +53,15 @@ class Traffic
                    "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
         end
       end
-      result = @db.exec('SELECT * FROM traffic')
-      puts '[' + result.map {|r| r.to_json}.join(',') + ']'
+      update_frontend
       @host_traffic = {}
     end
+  end
+
+  def update_frontend
+    puts "update frontend"
+    result = @db.exec('SELECT * FROM traffic')
+    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'traffic = [' + result.map {|r| r.to_json}.join(',') + ']' }
   end
 end
 
@@ -85,7 +92,7 @@ def main(args)
       EM::file_tail(path, Reader, traffic)
     end
     EM.add_periodic_timer(traffic.config[:update_interval]) do
-      traffic.update
+      traffic.update_stats
     end
   end
 end # def main
