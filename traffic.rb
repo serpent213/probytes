@@ -15,13 +15,29 @@ class Traffic
 
   def initialize
     @host_bytes = {}
-    @config = eval(File.open('traffic.conf').read)
+    @config = eval(File.open('traffic.conf.rb').read)
     puts "config: #{@config}"
+    @db = PG::Connection.open(@config[:postgresql])
+    begin
+      @db.exec('CREATE TABLE traffic (
+                  hostname VARCHAR(200),
+                  month INTEGER,
+                  year INTEGER,
+                  bytes INTEGER,
+                  PRIMARY KEY (hostname, month, year)
+                )')
+    rescue PG::Error => e
+      # table does exist
+    end
   end
 
   def increment_host(hostname, bytes)
     @host_bytes[hostname] ||= 0
     @host_bytes[hostname] += bytes
+  end
+
+  def update_db
+    puts "update db"
   end
 end
 
@@ -47,10 +63,13 @@ class Reader < EventMachine::FileTail
 end
 
 def main(args)
-  EventMachine.run do
+  EM.run do
     traffic = Traffic.new
     traffic.config[:logfiles].each do |path|
-      EventMachine::file_tail(path, Reader, traffic)
+      EM::file_tail(path, Reader, traffic)
+    end
+    EM.add_periodic_timer(traffic.config[:update_interval]) do
+      traffic.update_db
     end
   end
 end # def main
