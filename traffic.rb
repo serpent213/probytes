@@ -90,6 +90,10 @@ class Reader < EventMachine::FileTail
       hostname = m['hostname']
       bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
       puts "host: #{m["hostname"]} bytes: #{bytes_total}"
+      @traffic.config[:hostname_mapping].each do |mapping|
+        hostname.gsub!(mapping[0], mapping[1])
+      end
+      puts "host after mapping: #{hostname}"
       @traffic.increment_host(hostname, bytes_total)
     end
   end

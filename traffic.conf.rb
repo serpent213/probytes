@@ -9,6 +9,12 @@
   #   access_log /var/log/nginx-traffic.log traffic;
   :logfiles => ['/var/log/nginx-traffic.log'],
 
+  # hostname translation
+  # all entries are evaluated in order
+  :hostname_mapping => [
+    [/^www\.(.*)/, '\1'], # strip www prefix
+  ],
+
   # frontend target directory
   :frontend_dir => '/var/www/teralink.net/stats',
 
