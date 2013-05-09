@@ -11,7 +11,7 @@ require 'pg'
 
 class Traffic
   attr_reader :config
-  attr_accessor :host_bytes
+  # attr_accessor :host_bytes
 
   def initialize
     @host_bytes = {}
@@ -38,6 +38,15 @@ class Traffic
 
   def update_db
     puts "update db"
+    time = Time.now
+    month, year = time.month, time.year
+    @host_bytes.keys.each do |hostname|
+      puts "UPDATE traffic SET bytes = bytes + #{@host_bytes[hostname]} WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}"
+      result = @db.exec("UPDATE traffic SET bytes = bytes + #{@host_bytes[hostname]} WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
+      if result.cmd_tuples == 0
+        @db.exec("INSERT INTO traffic (hostname, month, year, bytes) VALUES ('#{hostname}', #{month}, #{year}, #{@host_bytes[hostname]})")
+      end
+    end
   end
 end
 
@@ -57,7 +66,7 @@ class Reader < EventMachine::FileTail
       bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
       puts "host: #{m["hostname"]} bytes: #{bytes_total}"
       @traffic.increment_host(hostname, bytes_total)
-      puts "host_bytes: #{@traffic.host_bytes[hostname]}"
+      # puts "host_bytes: #{@traffic.host_bytes[hostname]}"
     end
   end
 end
