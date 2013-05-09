@@ -4,6 +4,7 @@
 
 require 'eventmachine'
 require 'eventmachine-tail'
+require 'haml'
 require 'fileutils'
 require 'json'
 require 'pg'
@@ -13,7 +14,7 @@ class Traffic
 
   def initialize
     @host_traffic = {}
-    @config = eval(File.open('traffic.conf.rb').read)
+    @config = eval(File.read('traffic.conf.rb'))
     @frontend_dir = @config[:frontend_dir]
     @frontend_dir += '/' unless @frontend_dir.match(/\/$/)
     puts "config: #{@config}"
@@ -30,8 +31,8 @@ class Traffic
     rescue PG::Error => e
       # table does exist
     end
-    FileUtils.cp('index.html', @frontend_dir)
-    update_frontend
+    update_frontend_static
+    update_frontend_data
   end
 
   def increment_host(hostname, bytes)
@@ -53,13 +54,19 @@ class Traffic
                    "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
         end
       end
-      update_frontend
+      update_frontend_data
       @host_traffic = {}
     end
   end
 
-  def update_frontend
-    puts "update frontend"
+  def update_frontend_static
+    puts "update frontend static"
+    index = Haml::Engine.new(File.read('index.haml'))
+    File.open(@frontend_dir + 'index.html', 'w') {|f| f.write index.render }
+  end
+
+  def update_frontend_data
+    puts "update frontend data"
     result = @db.exec('SELECT * FROM traffic')
     File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'traffic = [' + result.map {|r| r.to_json}.join(',') + ']' }
   end
