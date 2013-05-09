@@ -4,15 +4,19 @@
 # Usage example:
 #   tail.rb /var/log/messages
 
-require "rubygems"
-require "eventmachine"
-require "eventmachine-tail"
+# require 'rubygems'
+require 'eventmachine'
+require 'eventmachine-tail'
+require 'pg'
 
 class Traffic
+  attr_reader :config
   attr_accessor :host_bytes
 
   def initialize
     @host_bytes = {}
+    @config = eval(File.open('traffic.conf').read)
+    puts "config: #{@config}"
   end
 
   def increment_host(hostname, bytes)
@@ -43,14 +47,9 @@ class Reader < EventMachine::FileTail
 end
 
 def main(args)
-  if args.length == 0
-    puts "Usage: #{$0} <path> [path2] [...]"
-    return 1
-  end
-
   EventMachine.run do
     traffic = Traffic.new
-    args.each do |path|
+    traffic.config[:logfiles].each do |path|
       EventMachine::file_tail(path, Reader, traffic)
     end
   end
