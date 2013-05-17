@@ -47,6 +47,7 @@ class Traffic
       time = Time.now
       month, year = time.month, time.year
       @host_traffic.keys.each do |hostname|
+        puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
         result = @db.exec("UPDATE traffic SET requests = requests + #{@host_traffic[hostname][:requests]}, bytes = bytes + #{@host_traffic[hostname][:bytes]} " +
                           "WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
         if result.cmd_tuples == 0
@@ -71,7 +72,7 @@ class Traffic
   def update_frontend_data
     puts "update frontend data"
     result = @db.exec('SELECT * FROM traffic')
-    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'traffic = [' + result.map {|r| r.to_json}.join(',') + ']' }
+    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'GoodLog = {}; GoodLog.trafficRaw = [' + result.map {|r| r.to_json}.join(',') + ']' }
   end
 end
 

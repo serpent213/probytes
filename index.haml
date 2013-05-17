@@ -43,7 +43,49 @@
       %script{:src => "data.js"}
       :javascript
         $(function() {
-          _(_(traffic).sortBy("hostname")).each(function(host) {
+          /*
+          raw: [
+            {"hostname":"teralink.net","month":"5","year":"2013","requests":"515","bytes":"8288738"},
+            {"hostname":"schlag13.de","month":"5","year":"2013","requests":"1","bytes":"355"},
+            {"hostname":"213streams.com","month":"5","year":"2013","requests":"2","bytes":"1038"},
+            {"hostname":"213things.com","month":"5","year":"2013","requests":"3","bytes":"1686"},
+            {"hostname":"213tec.com","month":"5","year":"2013","requests":"7","bytes":"7485"},
+            {"hostname":"teralink.net","month":"5","year":"2012","requests":"515","bytes":"8288738"},
+            {"hostname":"teralink.net","month":"6","year":"2012","requests":"515","bytes":"8288738"},
+            {"hostname":"schlag13.de","month":"5","year":"2012","requests":"1","bytes":"355"},
+          ]
+
+          by_year: {
+            "2012": [
+              {"hostname":"teralink.net","requests":"515","bytes":"8288738"},
+              {"hostname":"schlag13.de","requests":"1","bytes":"355"},
+            ],
+            "2013: [
+              {"hostname":"teralink.net","requests":"515","bytes":"8288738"},
+              {"hostname":"schlag13.de","requests":"1","bytes":"355"},
+              {"hostname":"213streams.com","requests":"2","bytes":"1038"},
+              {"hostname":"213things.com","requests":"3","bytes":"1686"},
+              {"hostname":"213tec.com","requests":"7","bytes":"7485"},
+            ],
+          }
+          */
+
+          var assoc = function(obj, key, value) {
+            obj = obj || {};
+            obj[key] = value;
+            return obj;
+          }
+
+          var trafficByYearRaw = _(GoodLog.trafficRaw).groupBy("year");
+          GoodLog.trafficByYear = {};
+          for (var year in trafficByYearRaw) {
+            GoodLog.trafficByYear[year] = _(trafficByYearRaw[year]).reduce(function(memo, host) {
+              return _(memo).extend(memo[host.hostname] ? assoc({}, host.hostname, { requests: memo[host.hostname].requests + host.requests, bytes: memo[host.hostname].bytes + host.bytes }) :
+                assoc({}, host.hostname, { requests: host.requests, bytes: host.bytes })); },
+              {});
+          }
+
+          _(_(GoodLog.trafficRaw).sortBy("hostname")).each(function(host) {
             $('#hosts').append('<li>' + host.hostname + ': ' + host.bytes + '</li>');
           });
         });
