@@ -11,8 +11,12 @@ div.container {
   padding-top: 20px;
 }
 
-.axis text {
+.axis text, .axis-label {
   font: 10px sans-serif;
+}
+
+.axis-label {
+  font-weight: bold;
 }
 
 .axis text.hostname {
@@ -24,4 +28,8 @@ div.container {
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;
+}
+
+rect.bar {
+  fill: #e58200;
 }
