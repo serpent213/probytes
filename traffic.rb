@@ -7,6 +7,7 @@ require 'eventmachine-tail'
 require 'haml'
 require 'fileutils'
 require 'json'
+require 'optparse'
 require 'pg'
 
 class Traffic
@@ -108,7 +109,7 @@ class Reader < EventMachine::FileTail
   end
 end
 
-def main(args)
+def run
   EM.run do
     traffic = Traffic.new
     traffic.config[:logfiles].each do |path|
@@ -118,6 +119,46 @@ def main(args)
       traffic.update_stats
     end
   end
-end # def main
+end
 
-exit(main(ARGV))
+options = {}
+
+opt_parser = OptionParser.new do |opt|
+  opt.banner = "Usage: traffic.rb COMMAND [OPTIONS]"
+  opt.separator  ""
+  opt.separator  "Commands"
+  opt.separator  "     start: start monitor"
+  opt.separator  "     stop: stop monitor"
+  opt.separator  "     restart: restart monitor"
+  opt.separator  "     fake: fill DB with fake data"
+  opt.separator  ""
+  opt.separator  "Options"
+
+  # opt.on("-e", "--environment ENVIRONMENT", "which environment you want server run") do |environment|
+  #   options[:environment] = environment
+  # end
+
+  opt.on("-d", "--daemon", "run as daemon") do
+    options[:daemon] = true
+  end
+
+  opt.on("-h", "--help", "help") do
+    puts opt_parser
+  end
+end
+
+opt_parser.parse!
+
+case ARGV[0]
+when 'start'
+  exit(run)
+when 'stop'
+  puts 'stop'
+when 'restart'
+  puts 'restart'
+when 'fake'
+  traffic = Traffic.new
+  traffic.make_up_fake
+else
+  puts opt_parser
+end
