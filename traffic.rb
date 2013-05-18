@@ -26,7 +26,7 @@ class Traffic
                   month INTEGER,
                   year INTEGER,
                   requests INTEGER,
-                  bytes INTEGER,
+                  bytes BIGINT,
                   PRIMARY KEY (hostname, month, year)
                 )')
     rescue PG::Error => e
@@ -42,18 +42,18 @@ class Traffic
     @host_traffic[hostname][:bytes] += bytes
   end
 
-  def update_stats
+  def update_stats(time = Time.now)
     puts "update stats"
     if not @host_traffic.empty?
-      time = Time.now
+      # time = Time.now
       month, year = time.month, time.year
       @host_traffic.keys.each do |hostname|
         puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
-        result = @db.exec_params('UPDATE traffic SET requests = requests + $1::int, bytes = bytes + $2::int ' +
+        result = @db.exec_params('UPDATE traffic SET requests = requests + $1::int, bytes = bytes + $2::bigint ' +
                                  'WHERE hostname = $3 AND month = $4::int AND year = $5::int',
                                  [@host_traffic[hostname][:requests], @host_traffic[hostname][:bytes], hostname, month, year])
         if result.cmd_tuples == 0
-          @db.exec_params('INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ($1, $2::int, $3::int, $4::int, $5::int)',
+          @db.exec_params('INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ($1, $2::int, $3::int, $4::int, $5::bigint)',
                           [hostname, month, year, @host_traffic[hostname][:requests], @host_traffic[hostname][:bytes]])
         end
       end
@@ -82,6 +82,31 @@ class Traffic
        :bytes    => r['bytes'].to_i}
     end
     File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'GoodLog = {}; GoodLog.trafficRaw = [' + result.map {|r| string_to_int(r).to_json}.join(',') + ']' }
+  end
+
+  def make_up_fake
+    hostwords = %w{amet consetetur diam dolor eirmod elitr et invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor ut}
+    tlds = %w{.com .net .org .de}
+    product = hostwords.product(tlds)
+    hostnames = product.sample(product.size / 2).map(&:join)
+
+    def inject_month(hostnames, month, year)
+      fake_time = Time.local(year, month)
+      hostnames.each do |hostname|
+        increment_host(hostname, rand(23 * 2**30))
+      end
+      update_stats(fake_time)
+    end
+
+    time = Time.now
+    year = time.year - 2
+    (3 + rand(7) .. 12).each {|month| inject_month(hostnames, month, year) }
+    year = time.year - 1
+    (1 .. 12).each {|month| inject_month(hostnames, month, year) }
+    if time.month > 1
+      year = time.year
+      (1 .. time.month - 1).each {|month| inject_month(hostnames, month, year) }
+    end
   end
 end
 
