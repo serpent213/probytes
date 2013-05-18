@@ -73,7 +73,14 @@ class Traffic
   def update_frontend_data
     puts "update frontend data"
     result = @db.exec('SELECT * FROM traffic')
-    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'GoodLog = {}; GoodLog.trafficRaw = [' + result.map {|r| r.to_json}.join(',') + ']' }
+    def string_to_int(r)
+      {:hostname => r['hostname'],
+       :month    => r['month'].to_i,
+       :year     => r['year'].to_i,
+       :requests => r['requests'].to_i,
+       :bytes    => r['bytes'].to_i}
+    end
+    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'GoodLog = {}; GoodLog.trafficRaw = [' + result.map {|r| string_to_int(r).to_json}.join(',') + ']' }
   end
 end
 

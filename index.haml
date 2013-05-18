@@ -36,7 +36,6 @@
               %a{:href => "foo"}= "foo"
             %li
               %a{:href => "bar"}= "bar"
-      %ul#hosts
       %script{:src => "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"}
       %script{:src => "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"}
       %script{:src => "//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"}
@@ -86,16 +85,21 @@
               {});
           }
 
+          /*
           _(_(GoodLog.trafficRaw).sortBy("hostname")).each(function(host) {
             $('#hosts').append('<li>' + host.hostname + ': ' + host.bytes + '</li>');
           });
+          */
 
-          var margin = {top: 30, right: 10, bottom: 10, left: 200},
-              width = 960 - margin.left - margin.right,
-              height = 800 - margin.top - margin.bottom;
+          var data = GoodLog.trafficRaw;
+
+          var margin = {top: 30, right: 10, bottom: 10, left: 220},
+              rowHeight = 30,
+              width = 940 - margin.left - margin.right, // 940px is Bootstrap container width
+              height = (data.length * rowHeight) - margin.top - margin.bottom;
 
           var x = d3.scale.linear()
-              .domain([0, 2500000000])
+              .domain([0, d3.max(data, function(d) { return d.bytes })])
               .range([0, width]);
 
           var y = d3.scale.ordinal()
@@ -114,8 +118,6 @@
             .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          var data = GoodLog.trafficRaw;
-
           // x.domain(d3.extent(data, function(d) { return d.bytes; })).nice();
           y.domain(data.map(function(d) { return d.hostname; }));
 
@@ -130,11 +132,11 @@
               .attr("height", y.rangeBand());
 
           bars.enter().append("text")
-              .attr("class", "label")
-              .attr("x", -3)
-              // .attr("y", y.rangeBand() / 2)
+              .attr("class", "hostname")
+              .attr("x", -10)
               .attr("y", function(d) { return y(d.hostname); })
-              .attr("dy", ".75em")
+              // .attr("dy", y.rangeBand() / 2)
+              .attr("dy", "1.1em")
               .attr("text-anchor", "end")
               .text(function(d) { return d.hostname; });
 

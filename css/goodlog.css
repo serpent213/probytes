@@ -15,6 +15,10 @@ div.container {
   font: 10px sans-serif;
 }
 
+.axis text.hostname {
+  font: 14px sans-serif;
+}
+
 .axis path,
 .axis line {
   fill: none;
