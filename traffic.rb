@@ -48,11 +48,12 @@ class Traffic
       month, year = time.month, time.year
       @host_traffic.keys.each do |hostname|
         puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
-        result = @db.exec("UPDATE traffic SET requests = requests + #{@host_traffic[hostname][:requests]}, bytes = bytes + #{@host_traffic[hostname][:bytes]} " +
-                          "WHERE hostname = '#{hostname}' AND month = #{month} AND year = #{year}")
+        result = @db.exec_params('UPDATE traffic SET requests = requests + $1::int, bytes = bytes + $2::int ' +
+                                 'WHERE hostname = $3 AND month = $4::int AND year = $5::int',
+                                 [@host_traffic[hostname][:requests], @host_traffic[hostname][:bytes], hostname, month, year])
         if result.cmd_tuples == 0
-          @db.exec("INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ('#{hostname}', #{month}, #{year}, " +
-                   "#{@host_traffic[hostname][:requests]}, #{@host_traffic[hostname][:bytes]})")
+          @db.exec_params('INSERT INTO traffic (hostname, month, year, requests, bytes) VALUES ($1, $2::int, $3::int, $4::int, $5::int)',
+                          [hostname, month, year, @host_traffic[hostname][:requests], @host_traffic[hostname][:bytes]])
         end
       end
       update_frontend_data
