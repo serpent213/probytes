@@ -12,7 +12,7 @@ Easy and delightful traffic monitoring for your webserver!
 
 ## Components
 
-proper:bytes (p:b) consists of smallish Ruby daemon for data collection and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
+proper:bytes (p:b) consists of a smallish Ruby daemon for data collection and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
 
 ## Development
 
