@@ -1,8 +1,8 @@
 # proper:bytes
 
-## Easy and delightful traffic monitoring for your webserver!
+Easy and delightful traffic monitoring for your webserver!
 
-### Development
+## Development
 
-  npm install -g yo grunt-cli bower
-  grunt server
+    npm install -g yo grunt-cli bower
+    grunt server
