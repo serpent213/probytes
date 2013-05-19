@@ -1,13 +1,10 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html class="no-js">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title></title>
-    <meta name="description" content="">
+    <title>proper:bytes</title>
+    <meta name="description" content="proper:bytes traffic monitor">
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/main.css -->
@@ -15,31 +12,65 @@
     <!-- endbuild -->
   </head>
   <body ng-app="properbytesApp">
-    <!--[if lt IE 7]>
-      <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
-    <![endif]-->
+    <div class='background-image'></div>
+    <div class='container'>
+      <div class='navbar navbar-inverse'>
+        <div class='navbar-inner'>
+          <span class='brand'>
+            <i class='icon-align-left'></i> proper:bytes
+          </span>
+          <ul class='nav'>
+            <li class='dropdown'>
+              <a class='dropdown-toggle' data-toggle='dropdown' href='#'>
+                2013
+                <b class='caret'></b>
+              </a>
+              <ul class='dropdown-menu'>
+                <li>
+                  <a href='foo'>Whole year</a>
+                </li>
+                <li>
+                  <a href='foo'>January</a>
+                </li>
+                <li>
+                  <a href='foo'>February</a>
+                </li>
+                <li>
+                  <a href='foo'>March</a>
+                </li>
+                <li>
+                  <a href='foo'>April</a>
+                </li>
+                <li>
+                  <a href='foo'>May</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href='foo'>foo</a>
+            </li>
+            <li>
+              <a href='bar'>bar</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div ng-view></div>
+    </div>
 
-    <!--[if lt IE 9]>
-      <script src="components/es5-shim/es5-shim.js"></script>
-      <script src="components/json3/lib/json3.min.js"></script>
-    <![endif]-->
-
-    <!-- Add your site or application content here -->
-    <div class="container" ng-view></div>
-
-    <script src="components/angular/angular.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
+    <!-- <script src="js/bootstrap.min.js"></script> -->
+    <!-- <script src="components/angular/angular.js"></script> -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.1.3/angular.min.js"></script>
+    <!-- <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.3.0.min.js"></script> behaves strangely -->
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="data.js"></script>
 
     <!-- build:js scripts/scripts.js -->
     <script src="scripts/app.js"></script>
     <script src="scripts/controllers/main.js"></script>
     <!-- endbuild -->
-
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-    <script>
-      var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-      s.parentNode.insertBefore(g,s)}(document,'script'));
-    </script>
   </body>
 </html>
