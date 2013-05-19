@@ -1,6 +1,7 @@
 .sass-cache
 .tmp
 /*.sublime-*
+/todo.rtf
 app/components
 dist
 node_modules
