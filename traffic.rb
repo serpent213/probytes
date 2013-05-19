@@ -93,7 +93,7 @@ class Traffic
     def inject_month(hostnames, month, year)
       fake_time = Time.local(year, month)
       hostnames.each do |hostname|
-        increment_host(hostname, rand(23 * 2**30))
+        increment_host(hostname, (rand()**2.3 * 23 * 2**30).floor)
       end
       update_stats(fake_time)
     end
