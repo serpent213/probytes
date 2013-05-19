@@ -1,0 +1,6 @@
+.sass-cache
+.tmp
+/*.sublime-*
+app/components
+dist
+node_modules
