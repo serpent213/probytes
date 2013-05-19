@@ -44,54 +44,89 @@
       :javascript
         $(function() {
           /*
-          raw: [
-            {"hostname":"teralink.net","month":"5","year":"2013","requests":"515","bytes":"8288738"},
-            {"hostname":"schlag13.de","month":"5","year":"2013","requests":"1","bytes":"355"},
-            {"hostname":"213streams.com","month":"5","year":"2013","requests":"2","bytes":"1038"},
-            {"hostname":"213things.com","month":"5","year":"2013","requests":"3","bytes":"1686"},
-            {"hostname":"213tec.com","month":"5","year":"2013","requests":"7","bytes":"7485"},
-            {"hostname":"teralink.net","month":"5","year":"2012","requests":"515","bytes":"8288738"},
-            {"hostname":"teralink.net","month":"6","year":"2012","requests":"515","bytes":"8288738"},
-            {"hostname":"schlag13.de","month":"5","year":"2012","requests":"1","bytes":"355"},
+          raw_from_server: [
+            {"hostname":"teralink.net","month":5,"year":2013,"requests":515,"bytes":8288738},
+            {"hostname":"schlag13.de","month":5,"year":2013,"requests":1,"bytes":355},
+            {"hostname":"213streams.com","month":5,"year":2013,"requests":2,"bytes":1038},
+            {"hostname":"213things.com","month":5,"year":2013,"requests":3,"bytes":1686},
+            {"hostname":"213tec.com","month":5,"year":2013,"requests":7,"bytes":7485},
+            {"hostname":"teralink.net","month":5,"year":2012,"requests":515,"bytes":8288738},
+            {"hostname":"teralink.net","month":6,"year":2012,"requests":515,"bytes":8288738},
+            {"hostname":"schlag13.de","month":5,"year":2012,"requests":1,"bytes":355},
           ]
-
-          by_year: {
-            "2012": [
-              {"hostname":"teralink.net","requests":"515","bytes":"8288738"},
-              {"hostname":"schlag13.de","requests":"1","bytes":"355"},
-            ],
-            "2013: [
-              {"hostname":"teralink.net","requests":"515","bytes":"8288738"},
-              {"hostname":"schlag13.de","requests":"1","bytes":"355"},
-              {"hostname":"213streams.com","requests":"2","bytes":"1038"},
-              {"hostname":"213things.com","requests":"3","bytes":"1686"},
-              {"hostname":"213tec.com","requests":"7","bytes":"7485"},
-            ],
-          }
           */
 
-          var assoc = function(obj, key, value) {
-            obj = obj || {};
-            obj[key] = value;
-            return obj;
-          }
+          var trafficByYearRaw = _(GoodLog.trafficRaw).groupBy('year');
+          GoodLog.trafficByYearRaw = trafficByYearRaw;
 
-          var trafficByYearRaw = _(GoodLog.trafficRaw).groupBy("year");
           GoodLog.trafficByYear = {};
           for (var year in trafficByYearRaw) {
-            GoodLog.trafficByYear[year] = _(trafficByYearRaw[year]).reduce(function(memo, host) {
-              return _(memo).extend(memo[host.hostname] ? assoc({}, host.hostname, { requests: memo[host.hostname].requests + host.requests, bytes: memo[host.hostname].bytes + host.bytes }) :
-                assoc({}, host.hostname, { requests: host.requests, bytes: host.bytes })); },
-              {});
+            GoodLog.trafficByYear[year] = _(_(trafficByYearRaw[year]).reduce(function(memo, monthly) {
+              if (!memo.hasOwnProperty(monthly.hostname)) memo[monthly.hostname] = {hostname: monthly.hostname, requests: 0, bytes: 0};
+              memo[monthly.hostname]['requests'] += monthly.requests;
+              memo[monthly.hostname]['bytes'] += monthly.bytes;
+              return memo;
+            }, {})).map(_.identity);
           }
 
           /*
-          _(_(GoodLog.trafficRaw).sortBy("hostname")).each(function(host) {
-            $('#hosts').append('<li>' + host.hostname + ': ' + host.bytes + '</li>');
-          });
+          by_year: {
+            2012: [
+              {"hostname":"teralink.net","requests":515,"bytes":8288738},
+              {"hostname":"schlag13.de","requests":1,"bytes":355},
+            ],
+            2013: [
+              {"hostname":"teralink.net","requests":515,"bytes":8288738},
+              {"hostname":"schlag13.de","requests":1,"bytes":355},
+              {"hostname":"213streams.com","requests":2,"bytes":1038},
+              {"hostname":"213things.com","requests":3,"bytes":1686},
+              {"hostname":"213tec.com","requests":7,"bytes":7485},
+            ],
+          }
           */
 
-          var data = _(_(GoodLog.trafficRaw).sortBy(function(d) { return -d.bytes })).map(function(d) { return _(d).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
+          GoodLog.trafficByMonth = {};
+          for (var year in trafficByYearRaw) GoodLog.trafficByMonth[year] = _(trafficByYearRaw[year]).groupBy('month');
+
+          /*
+          by_month: {
+            2012: {
+              10: [
+                {"hostname":"teralink.net","requests":515,"bytes":8288738},
+                {"hostname":"schlag13.de","requests":1,"bytes":355},
+              ],
+              11: [
+                {"hostname":"teralink.net","requests":322,"bytes":47476565},
+                {"hostname":"schlag13.de","requests":26,"bytes":27273},
+              ],
+              12: [
+                {"hostname":"teralink.net","requests":515,"bytes":8288738},
+                {"hostname":"schlag13.de","requests":1,"bytes":355},
+              ],
+            },
+            2013: {
+              1: [
+                {"hostname":"teralink.net","requests":515,"bytes":8288738},
+                {"hostname":"schlag13.de","requests":1,"bytes":355},
+                {"hostname":"213things.com","requests":3,"bytes":1686},
+                {"hostname":"213tec.com","requests":7,"bytes":7485},
+              ],
+              2: [
+                {"hostname":"teralink.net","requests":515,"bytes":8288738},
+                {"hostname":"schlag13.de","requests":1,"bytes":355},
+                {"hostname":"213things.com","requests":3,"bytes":1686},
+                {"hostname":"213tec.com","requests":7,"bytes":7485},
+              ],
+            }
+          }
+          */
+
+          var localDate = new Date(),
+              localYear = localDate.getFullYear(),
+              localMonth = localDate.getMonth() + 1,
+              data = _(_(GoodLog.trafficByMonth[localYear][localMonth]).
+                sortBy(function(d) { return -d.bytes })).
+                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
 
           var margin = {top: 30, right: 10, bottom: 10, left: 220},
               rowHeight = 30,
