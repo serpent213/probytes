@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('properbytesApp') // , ['ui.bootstrap'])
-  .controller('MainCtrl', function($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-    ];
+  .controller('MainCtrl', function($scope, $http) {
+    $http.get('data.json').success(function(data) {
+      $scope.traffic = data;
+      console.log('loaded ' + $scope.traffic.length + ' records');
+    });
   })
   .directive('navbar', function() {
     return {

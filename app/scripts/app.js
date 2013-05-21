@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('properbytesApp', [])
+angular.module('probytes', ['probytes.directives', 'probytes.services', 'probytes.controllers'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
