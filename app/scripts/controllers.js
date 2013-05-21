@@ -3,9 +3,9 @@
 /* Controllers */
 
 angular.module('probytes.controllers', [])
-  .controller('MainCtrl', function($scope, $http) {
-    $http.get('data.json').success(function(data) {
-      $scope.traffic = data;
-      console.log('loaded ' + $scope.traffic.length + ' records');
+  .controller('MainCtrl', function($scope, trafficData) {
+    $scope.traffic = trafficData.get();
+    $scope.traffic.then(function(data) {
+      console.log(data.length + ' records in controller');
     });
   });
