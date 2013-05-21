@@ -1,6 +1,6 @@
 # proper:bytes
 
-Easy and delightful traffic monitoring for your webserver!
+Simple and delightful traffic monitoring for your webserver!
 
 **Pre-alpha: better leave it alone for now!**
 
