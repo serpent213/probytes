@@ -17,4 +17,5 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection and a 
 ## Development
 
     npm install -g yo grunt-cli bower
+    bower install
     grunt server

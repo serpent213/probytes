@@ -1,6 +1,6 @@
 {
-  "name": "properbytes",
-  "version": "0.0.0",
+  "name": "probytes",
+  "version": "0.1.0",
   "dependencies": {
     "angular": "~1.0.5",
     "json3": "~3.2.4",
