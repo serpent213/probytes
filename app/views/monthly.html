@@ -1,3 +1,13 @@
-<h1>Monthly traffic: {{month}}/{{year}}</h1>
-
-<div monthly-chart></div>
+<div class="row">
+  <div class="span8">
+    <div class="well well-large">
+      <h1>Monthly traffic: {{month | monthName}} {{year}}</h1>
+      <div monthly-chart></div>
+    </div>
+  </div>
+  <div class="span4">
+    <div class="well well-large">
+      <h1>Proportinal</h1>
+    </div>
+  </div>
+</div>
