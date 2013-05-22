@@ -13,6 +13,7 @@ angular.module('probytes.directives', ['probytes.charts'])
     return {
       templateUrl: 'views/navbar.html',
       // replace: false,
+      scope: true,
       link: function(scope, element, attrs) {
         element.addClass('navbar navbar-inverse');
         /*
