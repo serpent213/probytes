@@ -4,7 +4,6 @@
 
 require 'eventmachine'
 require 'eventmachine-tail'
-require 'haml'
 require 'fileutils'
 require 'json'
 require 'optparse'
@@ -64,11 +63,7 @@ class Traffic
 
   def update_frontend_static
     puts "update frontend static"
-    index = Haml::Engine.new(File.read('index.haml'))
-    File.open(@frontend_dir + 'index.html', 'w') {|f| f.write index.render(self) }
-    FileUtils.cp_r('js', @frontend_dir)
-    FileUtils.cp_r('css', @frontend_dir)
-    FileUtils.cp_r('img', @frontend_dir)
+    FileUtils.cp_r(Dir['dist/*'], @frontend_dir)
   end
 
   def update_frontend_data
@@ -81,10 +76,10 @@ class Traffic
        :requests => r['requests'].to_i,
        :bytes    => r['bytes'].to_i}
     end
-    File.open(@frontend_dir + 'data.js', 'w') {|f| f.write 'GoodLog = {}; GoodLog.trafficRaw = [' + result.map {|r| string_to_int(r).to_json}.join(',') + ']' }
+    File.open(@frontend_dir + 'data.json', 'w') {|f| f.write '[' + result.map {|r| string_to_int(r).to_json}.join(',') + ']' }
   end
 
-  def make_up_fake
+  def mockup
     hostwords = %w{amet consetetur diam dolor eirmod elitr et invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor ut}
     tlds = %w{.com .net .org .de}
     product = hostwords.product(tlds)
@@ -155,7 +150,7 @@ opt_parser = OptionParser.new do |opt|
   opt.separator  "     start: start monitor"
   opt.separator  "     stop: stop monitor"
   opt.separator  "     restart: restart monitor"
-  opt.separator  "     fake: fill DB with fake data"
+  opt.separator  "     mockup: fill DB with fake data"
   opt.separator  ""
   opt.separator  "Options"
 
@@ -181,9 +176,9 @@ when 'stop'
   puts 'stop'
 when 'restart'
   puts 'restart'
-when 'fake'
+when 'mockup'
   traffic = Traffic.new
-  traffic.make_up_fake
+  traffic.mockup
 else
   puts opt_parser
 end
