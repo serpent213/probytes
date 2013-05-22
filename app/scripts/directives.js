@@ -9,20 +9,24 @@ angular.module('probytes.directives', ['probytes.charts'])
         'July', 'August', 'September', 'October', 'November', 'December'][n - 1];
     };
   })
-  .directive('navbar', function($location) {
+  .directive('navbar', function($location, $timeout) {
     return {
       templateUrl: 'views/navbar.html',
       // replace: false,
       scope: true,
       link: function(scope, element, attrs) {
         element.addClass('navbar navbar-inverse');
-        /*
+
         scope.$watch(function() {
           return $location.path();
         }, function(newValue, oldValue) {
-          scope.location = newValue;
+          $timeout(function() { // wait for DOM update
+            // using "element" as context does not work for some reason
+            $('.navbar li').removeClass('active');
+            $('.navbar a[href="#' + newValue + '"]').parents('li').addClass('active');
+          }, 0);
         });
-        */
+
         scope.$watch('traffic', function() {
           if (!scope.traffic) return;
           scope.years = Object.keys(scope.traffic.byYear).sort(function(a, b) { return b - a }); // sort descending
