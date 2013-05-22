@@ -9,11 +9,33 @@ angular.module('probytes.controllers', [])
     });
   })
   .controller('YearlyCtrl', function($scope, $routeParams, trafficData) {
-    $scope.year = $routeParams.year;
+    $scope.year = +$routeParams.year;
+    $scope.$watch('traffic', function() {
+      $scope.prevLink = null;
+      $scope.nextLink = null;
+      if (!$scope.traffic) return;
+
+      var prevYear = $scope.year - 1,
+          nextYear = $scope.year + 1;
+
+      if ($scope.traffic.byYear[prevYear]) {
+        $scope.prevLink = {
+          active: true,
+          year: prevYear,
+        };
+      }
+
+      if ($scope.traffic.byYear[nextYear]) {
+        $scope.nextLink = {
+          active: true,
+          year: nextYear,
+        };
+      }
+    });
   })
   .controller('MonthlyCtrl', function($scope, $routeParams, trafficData) {
-    $scope.year = $routeParams.year;
-    $scope.month = $routeParams.month;
+    $scope.year = +$routeParams.year;
+    $scope.month = +$routeParams.month;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
       $scope.nextLink = null;
