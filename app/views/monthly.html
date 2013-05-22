@@ -1,13 +1,35 @@
 <div class="row">
+  <div class="span12">
+    <div class="well well-large interval-heading">
+      <div class="pull-left prev-next-link">
+        <div ng-switch on="prevLink.active"><div ng-switch-when="true">
+          <a href="#/monthly/{{prevLink.year}}/{{prevLink.month}}">
+            <i class="icon-chevron-sign-left"></i> {{prevLink.month | monthName}} {{prevLink.year}}
+          </a>
+        </div></div>
+      </div>
+      <div class="pull-right prev-next-link">
+        <div ng-switch on="nextLink.active"><div ng-switch-when="true">
+          <a href="#/monthly/{{nextLink.year}}/{{nextLink.month}}">
+            {{nextLink.month | monthName}} {{nextLink.year}} <i class="icon-chevron-sign-right"></i>
+          </a>
+        </div></div>
+      </div>
+      <h1>{{month | monthName}} <a href="#/yearly/{{year}}">{{year}}</a></h1>
+    </div>
+  </div>
+</div>
+
+<div class="row">
   <div class="span8">
     <div class="well well-large">
-      <h1>Monthly traffic: {{month | monthName}} {{year}}</h1>
+      <h2>Monthly traffic</h2>
       <div monthly-chart></div>
     </div>
   </div>
   <div class="span4">
     <div class="well well-large">
-      <h1>Proportinal</h1>
+      <h2>Proportinal</h2>
     </div>
   </div>
 </div>
