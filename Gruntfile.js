@@ -253,6 +253,7 @@ module.exports = function (grunt) {
             '.htaccess',
             'components/**/*',
             'images/{,*/}*.{gif,webp}',
+            'lib/*',
             'styles/fonts/*'
           ]
         }]
@@ -264,7 +265,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('server', [
     'clean:server',
-    'coffee:dist',
+    // 'coffee:dist',
     'compass:server',
     'livereload-start',
     'connect:livereload',
@@ -283,19 +284,19 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'jshint',
-    'test',
-    'coffee',
+    // 'test',
+    // 'coffee',
     'compass:dist',
     'useminPrepare',
+    'concat',
     'imagemin',
     'cssmin',
     'htmlmin',
-    'concat',
     'copy',
     'cdnify',
     'ngmin',
     'uglify',
-    'rev',
+    // 'rev', // breaks fonts
     'usemin'
   ]);
 
