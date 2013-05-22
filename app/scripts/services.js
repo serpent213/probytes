@@ -11,7 +11,7 @@ angular.module('probytes.services', [])
           var transformed = { raw: data };
 
           /*
-          raw_from_server: [
+          rawFromServer: [
             {"hostname":"teralink.net","month":5,"year":2013,"requests":515,"bytes":8288738},
             {"hostname":"schlag13.de","month":5,"year":2013,"requests":1,"bytes":355},
             {"hostname":"213streams.com","month":5,"year":2013,"requests":2,"bytes":1038},
@@ -37,7 +37,7 @@ angular.module('probytes.services', [])
           transformed.byYear = byYear;
 
           /*
-          by_year: {
+          byYear: {
             2012: [
               {"hostname":"teralink.net","requests":515,"bytes":8288738},
               {"hostname":"schlag13.de","requests":1,"bytes":355},
@@ -57,7 +57,7 @@ angular.module('probytes.services', [])
           transformed.byMonth = byMonth;
 
           /*
-          by_month: {
+          byMonth: {
             2012: {
               10: [
                 {"hostname":"teralink.net","year":2012,"month":10,"requests":515,"bytes":8288738},

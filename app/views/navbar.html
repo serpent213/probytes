@@ -1,39 +1,19 @@
-<div class='navbar-inner'>
-  <span class='brand'>
-    <i class='icon-align-left'></i> proper:bytes
+<div class="navbar-inner">
+  <span class="brand">
+    <i class="icon-align-left"></i>&nbsp;&nbsp;proper:bytes
   </span>
-  <ul class='nav'>
-    <li class='dropdown'>
-      <a class='dropdown-toggle' data-toggle='dropdown' href='#'>
-        2013
-        <b class='caret'></b>
-      </a>
-      <ul class='dropdown-menu'>
-        <li>
-          <a href='#/yearly/2013'>Whole year</a>
+  <ul class="nav">
+    <li class="dropdown" ng-repeat="year in years">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{year}} <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li ng-repeat="month in months[year]">
+          <a href="#/monthly/{{year}}/{{month}}">{{month | monthName}}</a>
         </li>
+        <li class="divider"></li>
         <li>
-          <a href='#/monthly/2013/1'>January</a>
-        </li>
-        <li>
-          <a href='#/monthly/2013/2'>February</a>
-        </li>
-        <li>
-          <a href='#/monthly/2013/3'>March</a>
-        </li>
-        <li>
-          <a href='#/monthly/2013/4'>April</a>
-        </li>
-        <li>
-          <a href='#/monthly/2013/5'>May</a>
+          <a href="#/yearly/{{year}}">Whole year</a>
         </li>
       </ul>
-    </li>
-    <li>
-      <a href='foo'>foo</a>
-    </li>
-    <li>
-      <a href='bar'>bar</a>
     </li>
   </ul>
 </div>
