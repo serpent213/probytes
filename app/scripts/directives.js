@@ -17,15 +17,18 @@ angular.module('probytes.directives', ['probytes.charts'])
       link: function(scope, element, attrs) {
         element.addClass('navbar navbar-inverse');
 
-        scope.$watch(function() {
-          return $location.path();
-        }, function(newValue, oldValue) {
+        var setActive = function(newLocation) {
           $timeout(function() { // wait for DOM update
             // using "element" as context does not work for some reason
             $('.navbar li').removeClass('active');
-            $('.navbar a[href="#' + newValue + '"]').parents('li').addClass('active');
+            $('.navbar a[href="#' + newLocation + '"]').parents('li').addClass('active');
           }, 0);
-        });
+        };
+
+        scope.$watch(function() {
+          return $location.path();
+        }, setActive);
+        setActive($location.path());
 
         scope.$watch('traffic', function() {
           if (!scope.traffic) return;
