@@ -6,6 +6,7 @@ angular.module('probytes.controllers', [])
   .controller('MainCtrl', function($scope, trafficData) {
     trafficData.get().then(function(data) {
       $scope.traffic = data;
+      document.title += ' [' + data.meta.serverName + ']';
     });
   })
   .controller('YearlyCtrl', function($scope, $routeParams, trafficData) {
