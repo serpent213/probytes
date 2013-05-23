@@ -18,4 +18,11 @@ angular.module('probytes', ['probytes.directives', 'probytes.services', 'probyte
       .otherwise({
         redirectTo: '/monthly/' + localYear + '/' + localMonth
       });
+  })
+  .run(function($rootScope, $window) {
+    $rootScope.windowWidth = $window.outerWidth;
+    angular.element($window).bind('resize', function() {
+      $rootScope.windowWidth = $window.outerWidth;
+      $rootScope.$apply('windowWidth');
+    });
   });

@@ -41,7 +41,7 @@ angular.module('probytes.directives', ['probytes.charts'])
       }
     };
   })
-  .directive('monthlyChart', function(barChart) {
+  .directive('monthlyChart', function(barChart, $rootScope) {
     return {
       // templateUrl: 'views/navbar.html',
       // replace: false,
@@ -53,12 +53,14 @@ angular.module('probytes.directives', ['probytes.charts'])
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
 
-          barChart(element, data);
+          $rootScope.$watch('windowWidth', function(newVal, oldVal) {
+            barChart(element, data);
+          });
         });
       }
     };
   })
-  .directive('yearlyChart', function(barChart) {
+  .directive('yearlyChart', function(barChart, $rootScope) {
     return {
       // templateUrl: 'views/navbar.html',
       // replace: false,
@@ -70,7 +72,9 @@ angular.module('probytes.directives', ['probytes.charts'])
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
 
-          barChart(element, data);
+          $rootScope.$watch('windowWidth', function(newVal, oldVal) {
+            barChart(element, data);
+          });
         });
       }
     };

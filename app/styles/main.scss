@@ -73,6 +73,22 @@ div.well.interval-heading {
   a:active { text-decoration: none; }
 }
 
+// responsive
+
+// leave more room for the charts
+@media (max-width: 979px) {
+  // Make all grid-sized elements block level again
+  [class*="span"],
+  .uneditable-input[class*="span"], // Makes uneditable inputs full-width when using grid sizing
+  .row-fluid [class*="span"] {
+    float: none;
+    display: block;
+    width: auto;
+    margin-left: 20px;
+    @include ctb-box-sizing(border-box);
+  }
+}
+
 // charts
 
 text {

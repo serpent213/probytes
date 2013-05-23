@@ -5,7 +5,7 @@
 angular.module('probytes.charts', [])
   .value('barChart', function(element, data) {
     var elementWidth = $(element[0]).innerWidth(),
-        margin = {top: 30, right: 45, bottom: 10, left: 220},
+        margin = {top: 30, right: 45, bottom: 10, left: 180},
         rowHeight = 30,
         width = elementWidth - margin.left - margin.right,
         height = (data.length * rowHeight) - margin.top - margin.bottom;
@@ -24,6 +24,7 @@ angular.module('probytes.charts', [])
     var yAxis = d3.svg.axis()
         .orient("left");
 
+    d3.select(element[0]).html('');
     var svg = d3.select(element[0]).append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
