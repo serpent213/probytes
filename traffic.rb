@@ -24,7 +24,7 @@ class Traffic
                   hostname VARCHAR(200),
                   month INTEGER,
                   year INTEGER,
-                  requests INTEGER,
+                  requests BIGINT,
                   bytes BIGINT,
                   PRIMARY KEY (hostname, month, year)
                 )')
