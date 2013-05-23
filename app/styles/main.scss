@@ -14,11 +14,14 @@ $sansFontFamily: "Maven Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $wellBackground: rgba(245, 245, 245, 0.575);
 
 @import "compass_twitter_bootstrap_awesome";
+@import "compass_twitter_bootstrap_responsive";
 
 // common
 
 div.background-image {
   position: fixed;
+  left: 0;
+  top: 0;
   z-index: -100;
   width: 1920px;
   height: 1440px;
@@ -55,7 +58,7 @@ div.well.interval-heading {
   h1 { margin-top: 8px; }
 
   div.prev-next-link {
-    width: 250px;
+    width: 200px;
     margin: 24px 15px 0 15px;
     font-size: 16px;
 

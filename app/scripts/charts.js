@@ -4,9 +4,10 @@
 
 angular.module('probytes.charts', [])
   .value('barChart', function(element, data) {
-    var margin = {top: 30, right: 45, bottom: 10, left: 220},
+    var elementWidth = $(element[0]).innerWidth(),
+        margin = {top: 30, right: 45, bottom: 10, left: 220},
         rowHeight = 30,
-        width = 580 - margin.left - margin.right,
+        width = elementWidth - margin.left - margin.right,
         height = (data.length * rowHeight) - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
