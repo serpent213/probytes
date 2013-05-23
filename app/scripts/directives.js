@@ -32,6 +32,7 @@ angular.module('probytes.directives', ['probytes.charts'])
 
         scope.$watch('traffic', function() {
           if (!scope.traffic) return;
+          scope.serverName = scope.traffic.meta.serverName;
           scope.years = Object.keys(scope.traffic.byYear).sort(function(a, b) { return b - a }); // sort descending
           scope.months = {};
           scope.years.forEach(function(year) {
