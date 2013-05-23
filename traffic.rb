@@ -76,7 +76,13 @@ class Traffic
        :requests => r['requests'].to_i,
        :bytes    => r['bytes'].to_i}
     end
-    File.open(@frontend_dir + 'data.json', 'w') {|f| f.write '[' + result.map {|r| string_to_int(r).to_json}.join(',') + ']' }
+    export = {
+      :serverName      => @config[:server_name],
+      :updateInterval  => @config[:update_interval],
+      :traffic         => result.map {|r| string_to_int(r) },
+      :exportTimestamp => Time.now.to_i * 1000
+    }
+    File.open(@frontend_dir + 'data.json', 'w') {|f| f.write export.to_json }
   end
 
   def mockup

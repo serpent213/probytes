@@ -8,7 +8,14 @@ angular.module('probytes.services', [])
       var deferred = $q.defer();
       $http.get('data.json')
         .success(function(data) {
-          var transformed = { raw: data };
+          var transformed = {
+            raw:  data.traffic,
+            meta: {
+              serverName:      data.serverName,
+              updateInterval:  data.updateInterval,
+              exportTimestamp: data.exportTimestamp
+            }
+          };
 
           /*
           rawFromServer: [
@@ -23,7 +30,7 @@ angular.module('probytes.services', [])
           ]
           */
 
-          var byYearRaw = _(data).groupBy('year');
+          var byYearRaw = _(data.traffic).groupBy('year');
 
           var byYear = {};
           for (var year in byYearRaw) {
