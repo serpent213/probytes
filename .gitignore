@@ -5,4 +5,5 @@
 /todo.rtf
 app/components
 dist
+Gemfile.lock
 node_modules
