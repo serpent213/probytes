@@ -141,6 +141,15 @@ def run
   end
 end
 
+def run_playback
+  EM.run do
+    traffic = Traffic.new
+    EM.add_periodic_timer(traffic.config[:update_interval]) do
+      traffic.update_frontend_data
+    end
+  end
+end
+
 options = {}
 
 opt_parser = OptionParser.new do |opt|
@@ -162,6 +171,10 @@ opt_parser = OptionParser.new do |opt|
     options[:daemon] = true
   end
 
+  opt.on("-p", "--playback", "only export frontend and data, no input processing") do
+    options[:playback] = true
+  end
+
   opt.on("-h", "--help", "help") do
     puts opt_parser
   end
@@ -171,7 +184,11 @@ opt_parser.parse!
 
 case ARGV[0]
 when 'start'
-  exit(run)
+  if options[:playback]
+    exit(run_playback)
+  else
+    exit(run)
+  end
 when 'stop'
   puts 'stop'
 when 'restart'
