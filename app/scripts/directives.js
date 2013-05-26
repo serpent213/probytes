@@ -71,22 +71,21 @@ angular.module('probytes.directives', ['probytes.charts'])
 
           var data = _(_(scope.traffic.byMonth[scope.year][scope.month]).
                 sortBy(function(d) { return -d.bytes })).
-                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
+                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) }),
+              totalGiB = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
+              pieData = [],
+              pieGiB = 0,
+              i = 0;
 
-          data = [{hostname: 'foo1', bytes: 12334},
-                  {hostname: 'foo2', bytes: 29944},
-                  {hostname: 'foo3', bytes: 2993}];
-
-          data = [{age:'<5', population: 2704659},
-                  {age:'5-13', population: 4499890},
-                  {age:'14-17', population: 2159981},
-                  {age:'18-24', population: 3853788},
-                  {age:'25-44', population: 14106543},
-                  {age:'45-64', population: 8819342},
-                  {age:'≥65', population: 612463}];
+          while (pieGiB / totalGiB < 0.9) {
+            pieData.push(data[i]);
+            pieGiB += data[i].bytes;
+            i++;
+          }
+          pieData.push({hostname: 'others', bytes: totalGiB - pieGiB});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            pieChart(element, data);
+            pieChart(element, pieData);
           });
         });
       }
