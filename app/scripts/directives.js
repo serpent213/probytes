@@ -137,4 +137,21 @@ angular.module('probytes.directives', ['probytes.charts'])
         });
       }
     };
+  })
+  .directive('totalsTable', function() {
+    return {
+      templateUrl: 'views/totals_table.html',
+      scope: true,
+      link: function(scope, element, attrs) {
+        scope.$watch('traffic', function() {
+          if (!scope.traffic) return;
+
+          var data = _(scope.traffic.byMonth[scope.year][scope.month]).
+                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
+
+          scope.totalGiB      = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0);
+          scope.totalRequests = _(data).reduce(function(memo, host) { return memo + host.requests }, 0);
+        });
+      }
+    };
   });

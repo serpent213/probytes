@@ -101,6 +101,14 @@ div.well.interval-heading {
   a:active { text-decoration: none; }
 }
 
+div.totals {
+  padding-bottom: 0;
+
+  .totals-table tr td:nth-child(2) {
+    text-align: right;
+  }
+}
+
 // charts
 
 text {
