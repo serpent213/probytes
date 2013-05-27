@@ -102,7 +102,8 @@ angular.module('probytes.charts', [])
 
     g.append("path")
         .attr("d", arc)
-        .style("fill", function(d) { return color(d.data.hostname); });
+        .style("fill", function(d) { return color(d.data.hostname); })
+        .style("stroke", "#eee");
 
     g.append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
