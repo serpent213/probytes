@@ -149,8 +149,14 @@ angular.module('probytes.directives', ['probytes.charts'])
           var data = _(scope.traffic.byMonth[scope.year][scope.month]).
                 map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
 
+          // from https://github.com/arshaw/xdate/blob/master/src/xdate.js
+          function getDaysInMonth(year, month) {
+            return 32 - new Date(Date.UTC(year, month, 32)).getUTCDate();
+          }
+
           scope.totalGiB      = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0);
           scope.totalRequests = _(data).reduce(function(memo, host) { return memo + host.requests }, 0);
+          scope.avgMbitS      = scope.totalGiB * 1024 * 8 / (getDaysInMonth(scope.year, scope.month) * 24 * 3600);
         });
       }
     };
