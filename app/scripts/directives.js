@@ -2,13 +2,7 @@
 
 /* Directives */
 
-angular.module('probytes.directives', ['probytes.charts'])
-  .filter('monthName', function() {
-    return function(n) {
-      return ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'][n - 1];
-    };
-  })
+angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
   .directive('navbar', function($location, $timeout) {
     return {
       templateUrl: 'views/navbar.html',
