@@ -4,11 +4,30 @@
 
 angular.module('probytes.charts', [])
   .value('barChart', function(element, data) {
-    var elementWidth = $(element[0]).innerWidth(),
-        margin = {top: 30, right: 45, bottom: 10, left: 180},
-        rowHeight = 30,
-        width = elementWidth - margin.left - margin.right,
-        height = (data.length * rowHeight) - margin.top - margin.bottom;
+    var maxTextWidth = function(strings, className) {
+      var svg = d3.select(element[0]).append("svg")
+          .attr('width', 0)
+          .attr('height', 0);
+
+      var lines = svg.append('g');
+      lines.selectAll('.get-text-width')
+          .data(strings)
+        .enter().append('text')
+          .attr('class', className)
+          .text(_.identity);
+
+      var width = lines.node().getBBox().width;
+      svg.remove();
+
+      return width;
+    };
+
+    var elementWidth     = $(element[0]).innerWidth(),
+        maxHostnameWidth = maxTextWidth(_(data).map(function(d) { return d.hostname }), 'hostname'),
+        margin           = {top: 30, right: 45, bottom: 10, left: maxHostnameWidth + 10 },
+        rowHeight        = 30,
+        width            = elementWidth - margin.left - margin.right,
+        height           = (data.length * rowHeight) - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.bytes })])
