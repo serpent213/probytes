@@ -114,19 +114,23 @@ angular.module('probytes.charts', [])
       .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-    var g = svg.selectAll(".arc")
-        .data(pie(data))
-      .enter().append("g")
-        .attr("class", "arc");
+    var arcs = svg.selectAll(".arc")
+        .data(pie(data));
 
-    g.append("path")
+    arcs
+      .enter().append("g")
+        .attr("class", "arc")
+      .append("path")
         .attr("d", arc)
         .style("fill", function(d) { return color(d.data.hostname); })
         .style("stroke", "#eee");
 
-    g.append("text")
+    arcs
+      .enter().append("g")
+        .attr("class", "arc")
+      .append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
+        .attr("dy", ".45em")
         .style("text-anchor", "middle")
         .text(function(d) { return d.data.hostname; });
   });
