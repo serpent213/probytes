@@ -110,4 +110,16 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         });
       }
     };
+  })
+  .directive('footer', function(PROBYTES_VERSION) {
+    return {
+      templateUrl: 'views/footer.html',
+      link: function(scope, element, attrs) {
+        scope.version = PROBYTES_VERSION;
+        scope.$watch('traffic', function() {
+          if (!scope.traffic) return;
+          scope.timestamp = scope.traffic.meta.exportTimestamp;
+        });
+      }
+    };
   });

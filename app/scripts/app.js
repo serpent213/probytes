@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('probytes', ['probytes.directives', 'probytes.services', 'probytes.controllers'])
+  .constant('PROBYTES_VERSION', '0.3.0')
   .config(function ($routeProvider) {
     var localDate = new Date(),
         localYear = localDate.getFullYear(),
