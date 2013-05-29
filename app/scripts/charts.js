@@ -91,10 +91,14 @@ angular.module('probytes.charts', [])
         .attr("y2", height);
   })
   .value('pieChart', function(element, data) {
-    var elementWidth = $(element[0]).innerWidth(),
-        width = elementWidth,
-        height = elementWidth,
-        radius = Math.min(width, height) / 2;
+    var elementWidth    = $(element[0]).innerWidth(),
+        width           = elementWidth,
+        chartHeight     = elementWidth,
+        legendTopMargin = 20,
+        legendRowHeight = 30,
+        legendBoxSize   = 15,
+        legendHeight    = legendTopMargin + (data.length * legendRowHeight),
+        radius          = Math.min(width, chartHeight) / 2;
 
     var color = d3.scale.ordinal()
         .range(["#a05d56", "#d0743c", "#ff8c00", "#98abc5", "#8a89a6", "#7b6888", "#6b486b"]);
@@ -110,27 +114,46 @@ angular.module('probytes.charts', [])
     d3.select(element[0]).html('');
     var svg = d3.select(element[0]).append("svg")
         .attr("width", width)
-        .attr("height", height)
-      .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("height", chartHeight + legendHeight - 10);
 
-    var arcs = svg.selectAll(".arc")
+    var chart = svg.append("g")
+        .attr("transform", "translate(" + width / 2 + "," + chartHeight / 2 + ")");
+
+    var arcs = chart.selectAll(".arc")
         .data(pie(data));
 
-    arcs
-      .enter().append("g")
+    arcs.enter().append("g")
         .attr("class", "arc")
       .append("path")
         .attr("d", arc)
         .style("fill", function(d) { return color(d.data.hostname); })
         .style("stroke", "#eee");
 
-    arcs
-      .enter().append("g")
+    arcs.enter().append("g")
         .attr("class", "arc")
       .append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
         .attr("dy", ".45em")
         .style("text-anchor", "middle")
+        .text(function(d) { return d.data.hostname; });
+
+    var legend = svg.append("g")
+        .attr('transform', 'translate(10, ' + (chartHeight + legendTopMargin) + ')');
+
+    var legendRows = legend.selectAll('.legendRow')
+        .data(pie(data));
+
+    legendRows.enter()
+        .append('rect')
+        .attr('width', legendBoxSize)
+        .attr('height', legendBoxSize)
+        .attr('y', function(d, i) { return i * legendRowHeight; })
+        .style("fill", function(d) { return color(d.data.hostname); });
+
+    legendRows.enter()
+        .append('text')
+        .attr('x', 30)
+        .attr('y', function(d, i) { return i * legendRowHeight + legendBoxSize; })
+        .attr('dy', '-0.2em')
         .text(function(d) { return d.data.hostname; });
   });
