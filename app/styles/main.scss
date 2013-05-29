@@ -47,6 +47,16 @@ div.container {
     margin-left: 20px;
     @include ctb-box-sizing(border-box);
   }
+
+  .responsive-split-left {
+    float: left;
+    width: 302px;
+  }
+
+  .responsive-split-right {
+    float: right;
+    width: 302px;
+  }
 }
 
 // navbar
