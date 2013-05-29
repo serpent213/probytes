@@ -16,7 +16,11 @@ angular.module('probytes.controllers', [])
       $scope.nextLink = null;
       if (!$scope.traffic) return;
 
+      // data scope
+
       $scope.yearlyTraffic = $scope.traffic.byYear[$scope.year];
+
+      // prev/next links
 
       var prevYear = $scope.year - 1,
           nextYear = $scope.year + 1;
@@ -34,6 +38,10 @@ angular.module('probytes.controllers', [])
           year: nextYear,
         };
       }
+
+      // totals
+
+      $scope.yearlySeconds = 365 * 24 * 3600;
     });
   })
   .controller('MonthlyCtrl', function($scope, $routeParams, trafficData) {
@@ -44,7 +52,11 @@ angular.module('probytes.controllers', [])
       $scope.nextLink = null;
       if (!$scope.traffic) return;
 
+      // data scope
+
       $scope.monthlyTraffic = $scope.traffic.byMonth[$scope.year][$scope.month];
+
+      // prev/next links
 
       var tempDate = new Date($scope.year, $scope.month - 1, 1);
       tempDate.setMonth(tempDate.getMonth() - 1);
@@ -70,5 +82,11 @@ angular.module('probytes.controllers', [])
           year: nextYear,
         };
       }
+
+      // totals
+
+      // formula from https://github.com/arshaw/xdate/blob/master/src/xdate.js
+      var daysInMonth = 32 - new Date(Date.UTC($scope.year, $scope.month - 1, 32)).getUTCDate();
+      $scope.monthlySeconds = daysInMonth * 24 * 3600;
     });
   });
