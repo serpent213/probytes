@@ -24,7 +24,7 @@ angular.module('probytes.charts', [])
 
     var elementWidth     = $(element[0]).innerWidth(),
         maxHostnameWidth = maxTextWidth(_(data).map(function(d) { return d.hostname }), 'hostname'),
-        margin           = {top: 30, right: 45, bottom: 10, left: maxHostnameWidth + 10 },
+        margin           = {top: 30, right: 45, bottom: 0, left: maxHostnameWidth + 10 },
         rowHeight        = 30,
         width            = elementWidth - margin.left - margin.right,
         height           = (data.length * rowHeight) - margin.top - margin.bottom;
@@ -34,7 +34,9 @@ angular.module('probytes.charts', [])
         .range([0, width]);
 
     var y = d3.scale.ordinal()
-        .rangeRoundBands([0, height], .2);
+        // rangeRoundBands does produce a top margin sometimes, so rounding
+        // is done further down, when setting the y attributes to avoid anti-aliasing
+        .rangeBands([0, height], .22);
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -59,14 +61,14 @@ angular.module('probytes.charts', [])
     bars.enter().append("rect")
         .attr("class", 'bar')
         .attr("x", function(d) { return x(0); })
-        .attr("y", function(d) { return y(d.hostname); })
+        .attr("y", function(d) { return Math.round(y(d.hostname)); })
         .attr("width", function(d) { return Math.abs(x(d.bytes) - x(0)); })
         .attr("height", y.rangeBand());
 
     bars.enter().append("text")
         .attr("class", "hostname")
         .attr("x", -10)
-        .attr("y", function(d) { return y(d.hostname); })
+        .attr("y", function(d) { return Math.round(y(d.hostname)); })
         // .attr("dy", y.rangeBand() / 2)
         .attr("dy", "1.15em")
         .attr("text-anchor", "end")
