@@ -122,15 +122,18 @@ class Reader < EventMachine::FileTail
   def receive_data(data)
     @buffer.extract(data).each do |line|
       puts "#{path}: #{line}"
-      m = line.match(/(?<hostname>\S+) (?<request_bytes>\d+) (?<response_bytes>\d+)/)
-      hostname = m['hostname']
-      bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
-      puts "host: #{m["hostname"]} bytes: #{bytes_total}"
-      @traffic.config[:hostname_mapping].each do |mapping|
-        hostname.gsub!(mapping[0], mapping[1])
+      if m = line.match(/^(?<hostname>\S+\.\S+) (?<request_bytes>\d+) (?<response_bytes>\d+)/)
+        hostname = m['hostname']
+        bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
+        puts "host: #{m["hostname"]} bytes: #{bytes_total}"
+        @traffic.config[:hostname_mapping].each do |mapping|
+          hostname.gsub!(mapping[0], mapping[1])
+        end
+        puts "host after mapping: #{hostname}"
+        @traffic.increment_host(hostname, bytes_total)
+      else
+        puts "ignoring input: #{line}"
       end
-      puts "host after mapping: #{hostname}"
-      @traffic.increment_host(hostname, bytes_total)
     end
   end
 end
