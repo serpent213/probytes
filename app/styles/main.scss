@@ -144,8 +144,12 @@ text.hostname {
   shape-rendering: crispEdges;
 }
 
-rect.bar {
+rect.bar-bytes {
   fill: #e58200;
+}
+
+rect.bar-req {
+  fill: #222;
 }
 
 // footer

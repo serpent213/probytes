@@ -24,13 +24,17 @@ angular.module('probytes.charts', [])
 
     var elementWidth     = $(element[0]).innerWidth(),
         maxHostnameWidth = maxTextWidth(_(data).map(function(d) { return d.hostname }), 'hostname'),
-        margin           = {top: 30, right: 45, bottom: 0, left: maxHostnameWidth + 10 },
+        margin           = {top: 30, right: 45, bottom: 22, left: maxHostnameWidth + 10 },
         rowHeight        = 30,
         width            = elementWidth - margin.left - margin.right,
         height           = (data.length * rowHeight) - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.bytes })])
+        .range([0, width]);
+
+    var x2 = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.requests })])
         .range([0, width]);
 
     var y = d3.scale.ordinal()
@@ -41,6 +45,10 @@ angular.module('probytes.charts', [])
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("top");
+
+    var xAxis2 = d3.svg.axis()
+        .scale(x2)
+        .orient("bottom");
 
     var yAxis = d3.svg.axis()
         .orient("left");
@@ -58,13 +66,23 @@ angular.module('probytes.charts', [])
     var bars = svg.selectAll(".bar")
       .data(data);
 
+    // bars (bytes)
     bars.enter().append("rect")
-        .attr("class", 'bar')
+        .attr("class", 'bar-bytes')
         .attr("x", function(d) { return x(0); })
         .attr("y", function(d) { return Math.round(y(d.hostname)); })
         .attr("width", function(d) { return Math.abs(x(d.bytes) - x(0)); })
-        .attr("height", y.rangeBand());
+        .attr("height", Math.round(y.rangeBand()));
 
+    // bars (requests)
+    bars.enter().append("rect")
+        .attr("class", 'bar-req')
+        .attr("x", function(d) { return x(0); })
+        .attr("y", function(d) { return Math.round(y(d.hostname)) + 8; })
+        .attr("width", function(d) { return Math.abs(x2(d.requests) - x2(0)); })
+        .attr("height", 7);
+
+    // hostnames (y axis)
     bars.enter().append("text")
         .attr("class", "hostname")
         .attr("x", -10)
@@ -74,6 +92,7 @@ angular.module('probytes.charts', [])
         .attr("text-anchor", "end")
         .text(function(d) { return d.hostname; });
 
+    // bytes scale (x1 axis)
     svg.append("g")
         .attr("class", "x axis")
         .call(xAxis);
@@ -85,6 +104,20 @@ angular.module('probytes.charts', [])
         .attr("y", -9)
         .text("[GiB]");
 
+    // requests scale (x2 axis)
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr('transform', 'translate(0, ' + (height - 0) + ')')
+        .call(xAxis2);
+
+    svg.append("text")
+        .attr("class", "x axis-label")
+        .attr("text-anchor", "end")
+        .attr("x", width + margin.right - 5)
+        .attr("y", height + 18)
+        .text("[kreq]");
+
+    // y axis
     svg.append("g")
         .attr("class", "y axis")
       .append("line")
