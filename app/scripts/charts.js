@@ -135,7 +135,7 @@ angular.module('probytes.charts', [])
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
         .attr("dy", ".45em")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.data.hostname; });
+        .text(function(d) { return d.data.percent + '%'; });
 
     var legend = svg.append("g")
         .attr('transform', 'translate(10, ' + (chartHeight + legendTopMargin) + ')');
