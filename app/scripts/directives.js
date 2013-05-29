@@ -54,43 +54,14 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       }
     };
   })
-  .directive('monthlyPieChart', function(pieChart, $rootScope) {
+  .directive('trafficPieChart', function(pieChart, $rootScope) {
     return {
-      // templateUrl: 'views/navbar.html',
-      // replace: false,
+      scope: {dataset: '='},
       link: function(scope, element, attrs) {
-        scope.$watch('traffic', function() {
-          if (!scope.traffic) return;
+        scope.$watch('dataset', function() {
+          if (!scope.dataset) return;
 
-          var data = _(_(scope.traffic.byMonth[scope.year][scope.month]).
-                sortBy(function(d) { return -d.bytes })).
-                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) }),
-              totalGiB = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
-              pieData = [],
-              pieGiB = 0,
-              i = 0;
-
-          while (pieGiB / totalGiB < 0.9) {
-            pieData.push(data[i]);
-            pieGiB += data[i].bytes;
-            i++;
-          }
-          pieData.push({hostname: 'others', bytes: totalGiB - pieGiB});
-
-          $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            pieChart(element, pieData);
-          });
-        });
-      }
-    };
-  })
-  .directive('yearlyPieChart', function(pieChart, $rootScope) {
-    return {
-      link: function(scope, element, attrs) {
-        scope.$watch('traffic', function() {
-          if (!scope.traffic) return;
-
-          var data = _(_(scope.traffic.byYear[scope.year]).
+          var data = _(_(scope.dataset).
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) }),
               totalGiB = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
