@@ -2,8 +2,6 @@
 
 Simple and delightful traffic monitoring for your webserver!
 
-**Pre-alpha: better leave it alone for now!**
-
 ## Goals
 
 * Easy to setup, maintain and develop
