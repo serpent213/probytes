@@ -94,8 +94,8 @@ angular.module('probytes.charts', [])
     var elementWidth    = $(element[0]).innerWidth(),
         width           = elementWidth,
         chartHeight     = elementWidth,
-        legendTopMargin = 20,
-        legendRowHeight = 30,
+        legendTopMargin = 16,
+        legendRowHeight = 25,
         legendBoxSize   = 15,
         legendHeight    = legendTopMargin + (data.length * legendRowHeight),
         radius          = Math.min(width, chartHeight) / 2;
