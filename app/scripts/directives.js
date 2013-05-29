@@ -36,20 +36,19 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       }
     };
   })
-  .directive('monthlyChart', function(barChart, $rootScope) {
+  .directive('trafficBarChart', function(barChart, $rootScope) {
     return {
-      // templateUrl: 'views/navbar.html',
-      // replace: false,
+      scope: {dataset: '='},
       link: function(scope, element, attrs) {
-        scope.$watch('traffic', function() {
-          if (!scope.traffic) return;
+        scope.$watch('dataset', function() {
+          if (!scope.dataset) return;
 
-          var data = _(_(scope.traffic.byMonth[scope.year][scope.month]).
+          var niceData = _(_(scope.dataset).
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            barChart(element, data);
+            barChart(element, niceData);
           });
         });
       }
@@ -80,25 +79,6 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
             pieChart(element, pieData);
-          });
-        });
-      }
-    };
-  })
-  .directive('yearlyChart', function(barChart, $rootScope) {
-    return {
-      // templateUrl: 'views/navbar.html',
-      // replace: false,
-      link: function(scope, element, attrs) {
-        scope.$watch('traffic', function() {
-          if (!scope.traffic) return '';
-
-          var data = _(_(scope.traffic.byYear[scope.year]).
-                sortBy(function(d) { return -d.bytes })).
-                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
-
-          $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            barChart(element, data);
           });
         });
       }

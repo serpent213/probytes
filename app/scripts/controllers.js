@@ -16,6 +16,8 @@ angular.module('probytes.controllers', [])
       $scope.nextLink = null;
       if (!$scope.traffic) return;
 
+      $scope.yearlyTraffic = $scope.traffic.byYear[$scope.year];
+
       var prevYear = $scope.year - 1,
           nextYear = $scope.year + 1;
 
@@ -41,6 +43,8 @@ angular.module('probytes.controllers', [])
       $scope.prevLink = null;
       $scope.nextLink = null;
       if (!$scope.traffic) return;
+
+      $scope.monthlyTraffic = $scope.traffic.byMonth[$scope.year][$scope.month];
 
       var tempDate = new Date($scope.year, $scope.month - 1, 1);
       tempDate.setMonth(tempDate.getMonth() - 1);
