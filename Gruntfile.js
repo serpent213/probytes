@@ -47,7 +47,8 @@ module.exports = function (grunt) {
       options: {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost'
+        // hostname: 'localhost'
+        hostname: '0.0.0.0'
       },
       livereload: {
         options: {
@@ -130,7 +131,7 @@ module.exports = function (grunt) {
         cssDir: '.tmp/styles',
         imagesDir: '<%= yeoman.app %>/images',
         javascriptsDir: '<%= yeoman.app %>/scripts',
-        fontsDir: '/styles/fonts',
+        fontsDir: 'styles/fonts',
         importPath: '<%= yeoman.app %>/components',
         relativeAssets: true
       },
@@ -275,7 +276,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', [
     'clean:server',
-    'coffee',
+    // 'coffee',
     'compass',
     'connect:test',
     'karma'
@@ -296,7 +297,7 @@ module.exports = function (grunt) {
     'cdnify',
     'ngmin',
     'uglify',
-    // 'rev', // breaks fonts
+    'rev',
     'usemin'
   ]);
 
