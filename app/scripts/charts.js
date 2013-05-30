@@ -31,11 +31,11 @@ angular.module('probytes.charts', [])
             height           = (data.length * rowHeight) - margin.top - margin.bottom;
 
         var x = d3.scale.linear()
-            .domain([0, d3.max(data, function(d) { return d.bytes })])
+            .domain([0, d3.max(data, function(d) { return d.bytes / Math.pow(2, 30) })])
             .range([0, width]);
 
         var x2 = d3.scale.linear()
-            .domain([0, d3.max(data, function(d) { return d.requests })])
+            .domain([0, d3.max(data, function(d) { return d.requests / 1000 })])
             .range([0, width]);
 
         var y = d3.scale.ordinal()
@@ -72,7 +72,7 @@ angular.module('probytes.charts', [])
             .attr("class", 'bar-bytes')
             .attr("x", function(d) { return x(0); })
             .attr("y", function(d) { return Math.round(y(d.hostname)); })
-            .attr("width", function(d) { return Math.abs(x(d.bytes) - x(0)); })
+            .attr("width", function(d) { return Math.abs(x(d.bytes / Math.pow(2, 30)) - x(0)); })
             .attr("height", Math.round(y.rangeBand()));
 
         // bars (requests)
@@ -84,13 +84,13 @@ angular.module('probytes.charts', [])
 
         requestBars.append('line')
             .attr('x1', function(d) { return x2(0); })
-            .attr('x2', function(d) { return x2(d.requests); })
+            .attr('x2', function(d) { return x2(d.requests / 1000); })
             .attr('y1', function(d) { return Math.round(y(d.hostname)) + halfBarHeight; })
             .attr('y2', function(d) { return Math.round(y(d.hostname)) + halfBarHeight; });
 
         requestBars.append('line')
-            .attr('x1', function(d) { return x2(d.requests); })
-            .attr('x2', function(d) { return x2(d.requests); })
+            .attr('x1', function(d) { return x2(d.requests / 1000); })
+            .attr('x2', function(d) { return x2(d.requests / 1000); })
             .attr('y1', function(d) { return Math.round(y(d.hostname)) + halfBarHeight - quarterBarHeight; })
             .attr('y2', function(d) { return Math.round(y(d.hostname)) + halfBarHeight + quarterBarHeight; });
 
@@ -144,8 +144,8 @@ angular.module('probytes.charts', [])
             function showTooltip() {
               // recreate tooltip before showing
               // otherwise show/hide alternation ends up in the wrong state when switching too fast
-              var content = 'Traffic: ' + $filter('number')(data[row].bytes, 2)  + ' GiB<br>' +
-                'Requests: ' + $filter('number')(data[row].requests) + ' k<br>' +
+              var content = 'Traffic: ' + $filter('number')(data[row].bytes / Math.pow(2, 30), 2)  + ' GiB<br>' +
+                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
                 'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
               $(rowBarBytes[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
               $(rowBarBytes[row]).tooltip('show');

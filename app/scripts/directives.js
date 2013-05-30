@@ -51,8 +51,8 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           var niceData = _(_(scope.dataset).
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend(
-                  {bytes:      d.bytes / Math.pow(2, 30),
-                   requests:   d.requests / 1000,
+                  {bytes:      d.bytes,
+                   requests:   d.requests,
                    avgReqSize: d.bytes / d.requests}
                 )});
 
@@ -70,23 +70,22 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var data       = _(_(scope.dataset).
-                sortBy(function(d) { return -d.bytes })).
-                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) }),
-              totalGiB   = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
+          var data       = _(scope.dataset).
+                sortBy(function(d) { return -d.bytes }),
+              totalBytes = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
               pieData    = [],
-              pieGiB     = 0,
+              pieBytes   = 0,
               piePercent = 0,
               i          = 0;
 
-          while (pieGiB / totalGiB < 0.9) {
-            var p = Math.round(data[i].bytes / totalGiB * 100);
+          while (pieBytes / totalBytes < 0.9) {
+            var p = Math.round(data[i].bytes / totalBytes * 100);
             pieData.push(_(_(data[i]).clone()).extend({ percent: p }));
-            pieGiB += data[i].bytes;
+            pieBytes += data[i].bytes;
             piePercent += p;
             i++;
           }
-          pieData.push({hostname: 'others', bytes: totalGiB - pieGiB, percent: 100 - piePercent});
+          pieData.push({hostname: 'others', bytes: totalBytes - pieBytes, percent: 100 - piePercent});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
             Charts.pieChart(element, pieData);
