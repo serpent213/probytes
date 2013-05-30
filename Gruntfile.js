@@ -270,7 +270,7 @@ module.exports = function (grunt) {
     'compass:server',
     'livereload-start',
     'connect:livereload',
-    'open',
+    // 'open',
     'watch'
   ]);
 
