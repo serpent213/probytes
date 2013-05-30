@@ -16,7 +16,7 @@ angular.module('probytes.datetime', [])
         if (year > localDate.getFullYear() || (year === localDate.getFullYear() && month >= localDate.getMonth() + 1)) {
           return Math.max(0, Math.ceil((localDate - new Date(year, month - 1, 1)) / 1000));
         } else {
-          return dh.daysInMonth(year, month);
+          return dh.secondsInMonth(year, month);
         }
       },
       secondsInYear: function(year) {
@@ -28,7 +28,7 @@ angular.module('probytes.datetime', [])
         if (year >= localDate.getFullYear()) {
           return Math.max(0, Math.ceil((localDate - new Date(year, 0, 1)) / 1000));
         } else {
-          return dh.daysInYear(year);
+          return dh.secondsInYear(year);
         }
       }
     };
