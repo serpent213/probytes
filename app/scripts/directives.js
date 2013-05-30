@@ -41,7 +41,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       }
     };
   })
-  .directive('trafficBarChart', function(barChart, $rootScope) {
+  .directive('trafficBarChart', function(Charts, $rootScope) {
     return {
       scope: {dataset: '='},
       link: function(scope, element, attrs) {
@@ -56,13 +56,13 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
                 )});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            barChart(element, niceData);
+            Charts.horizontalBarChart(element, niceData);
           });
         });
       }
     };
   })
-  .directive('trafficPieChart', function(pieChart, $rootScope) {
+  .directive('trafficPieChart', function(Charts, $rootScope) {
     return {
       scope: {dataset: '='},
       link: function(scope, element, attrs) {
@@ -88,7 +88,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           pieData.push({hostname: 'others', bytes: totalGiB - pieGiB, percent: 100 - piePercent});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            pieChart(element, pieData);
+            Charts.pieChart(element, pieData);
           });
         });
       }
