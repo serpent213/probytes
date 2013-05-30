@@ -33,6 +33,10 @@ div.container {
   padding-top: 20px;
 }
 
+.tooltip {
+  pointer-events: none;
+}
+
 // responsive
 
 // leave more room for the charts
@@ -159,6 +163,10 @@ rect.bar-bytes {
   .bar-req line {
     shape-rendering: auto;
   }
+}
+
+.percentage {
+  pointer-events: none;
 }
 
 // footer

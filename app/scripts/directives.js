@@ -70,22 +70,34 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var data       = _(scope.dataset).
+          var data          = _(scope.dataset).
                 sortBy(function(d) { return -d.bytes }),
-              totalBytes = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
-              pieData    = [],
-              pieBytes   = 0,
-              piePercent = 0,
-              i          = 0;
+              totalBytes    = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
+              totalRequests = _(data).reduce(function(memo, host) { return memo + host.requests }, 0),
+              pieData       = [],
+              pieBytes      = 0,
+              pieRequests   = 0,
+              piePercent    = 0,
+              i             = 0;
 
           while (pieBytes / totalBytes < 0.9) {
             var p = Math.round(data[i].bytes / totalBytes * 100);
-            pieData.push(_(_(data[i]).clone()).extend({ percent: p }));
+            pieData.push(_(_(data[i]).clone()).extend({
+              percent: p,
+              avgReqSize: data[i].bytes / data[i].requests
+            }));
             pieBytes += data[i].bytes;
+            pieRequests += data[i].requests;
             piePercent += p;
             i++;
           }
-          pieData.push({hostname: 'others', bytes: totalBytes - pieBytes, percent: 100 - piePercent});
+          pieData.push({
+            hostname: 'others',
+            bytes: totalBytes - pieBytes,
+            requests: totalRequests - pieRequests,
+            avgReqSize: (totalBytes - pieBytes) / (totalRequests - pieRequests),
+            percent: 100 - piePercent
+          });
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
             Charts.pieChart(element, pieData);

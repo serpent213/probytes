@@ -137,8 +137,8 @@ angular.module('probytes.charts', [])
 
         // tooltips
         var rows = data.length;
-        var rowBarBytes = $('.bar-bytes');
-        var rowHostnames = $('.hostname');
+        var rowBarBytes = $('.bar-bytes', element);
+        var rowHostnames = $('.hostname', element);
         for (var i = 0; i < rows; i++) {
           (function(row) {
             function showTooltip() {
@@ -163,8 +163,7 @@ angular.module('probytes.charts', [])
           })(i);
         }
 
-        // mysteriously, this is required to hide tooltips by clicking on iOS
-        $(element).click(function() {});
+        $('.container').click(function() { $('.tooltip').remove(); });
       },
       pieChart: function(element, data) {
         var elementWidth    = $(element[0]).innerWidth(),
@@ -208,11 +207,13 @@ angular.module('probytes.charts', [])
         arcs.enter().append("g")
             .attr("class", "arc")
           .append("text")
+            .attr('class', 'percentage')
             .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
             .attr("dy", ".45em")
             .style("text-anchor", "middle")
             .text(function(d) { return d.data.percent + '%'; });
 
+        // legend
         var legend = svg.append("g")
             .attr('transform', 'translate(10, ' + (chartHeight + legendTopMargin) + ')');
 
@@ -232,6 +233,34 @@ angular.module('probytes.charts', [])
             .attr('y', function(d, i) { return i * legendRowHeight + legendBoxSize; })
             .attr('dy', '-0.2em')
             .text(function(d) { return d.data.hostname; });
+
+        // tooltips
+        var rows = data.length;
+        var rowPieWedges = $('.arc', element);
+        var rowPercentages = $('.percentage', element);
+        for (var i = 0; i < rows; i++) {
+          (function(row) {
+            function showTooltip() {
+              // recreate tooltip before showing
+              // otherwise show/hide alternation ends up in the wrong state when switching too fast
+              var content = '<strong><u>' + data[row].hostname + '</u></strong><br>' +
+                'Traffic: ' + $filter('number')(data[row].bytes / Math.pow(2, 30), 2)  + ' GiB<br>' +
+                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
+                'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
+              $(rowPercentages[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
+              $(rowPercentages[row]).tooltip('show');
+            }
+
+            function hideTooltip() {
+              $(rowPercentages[row]).tooltip('destroy');
+            }
+
+            $(rowPieWedges[row]).mouseover(showTooltip);
+            $(rowPieWedges[row]).mouseout(hideTooltip);
+          })(i);
+        }
+
+        $('.container').click(function() { $('.tooltip').remove(); });
       }
     };
 
