@@ -155,6 +155,12 @@ rect.bar-bytes {
   pointer-events: none;
 }
 
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .bar-req line {
+    shape-rendering: auto;
+  }
+}
+
 // footer
 
 div.footer {
