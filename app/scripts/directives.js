@@ -51,8 +51,9 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           var niceData = _(_(scope.dataset).
                 sortBy(function(d) { return -d.bytes })).
                 map(function(d) { return _(_(d).clone()).extend(
-                  {bytes:    d.bytes / Math.pow(2, 30),
-                   requests: d.requests / 1000}
+                  {bytes:      d.bytes / Math.pow(2, 30),
+                   requests:   d.requests / 1000,
+                   avgReqSize: d.bytes / d.requests}
                 )});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {

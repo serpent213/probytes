@@ -3,7 +3,7 @@
 /* Charting helpers */
 
 angular.module('probytes.charts', [])
-  .factory('Charts', function() {
+  .factory('Charts', function($filter) {
     var charts = {
       maxTextWidth: function(element, strings, classname) {
         var svg = d3.select(element[0]).append("svg")
@@ -134,6 +134,36 @@ angular.module('probytes.charts', [])
             .attr("x1", x(0))
             .attr("x2", x(0))
             .attr("y2", height);
+
+        // tooltips
+        var rows = data.length;
+        var rowBarBytes = $('.bar-bytes');
+        var rowHostnames = $('.hostname');
+        for (var i = 0; i < rows; i++) {
+          (function(row) {
+            function showTooltip() {
+              // recreate tooltip before showing
+              // otherwise show/hide alternation ends up in the wrong state when switching too fast
+              var content = 'Traffic: ' + $filter('number')(data[row].bytes, 2)  + ' GiB<br>' +
+                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
+                'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
+              $(rowBarBytes[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
+              $(rowBarBytes[row]).tooltip('show');
+            }
+
+            function hideTooltip() {
+              $(rowBarBytes[row]).tooltip('destroy');
+            }
+
+            $(rowBarBytes[row]).mouseover(showTooltip);
+            $(rowBarBytes[row]).mouseout(hideTooltip);
+            $(rowHostnames[row]).mouseover(showTooltip);
+            $(rowHostnames[row]).mouseout(hideTooltip);
+          })(i);
+        }
+
+        // mysteriously, this is required to hide tooltips by clicking on iOS
+        $(element).click(function() {});
       },
       pieChart: function(element, data) {
         var elementWidth    = $(element[0]).innerWidth(),
