@@ -2,14 +2,14 @@
 
 /* Controllers */
 
-angular.module('probytes.controllers', [])
+angular.module('probytes.controllers', ['probytes.datetime'])
   .controller('MainCtrl', function($scope, trafficData) {
     trafficData.get().then(function(data) {
       $scope.traffic = data;
       document.title += ' [' + data.meta.serverName + ']';
     });
   })
-  .controller('YearlyCtrl', function($scope, $routeParams, trafficData) {
+  .controller('YearlyCtrl', function($scope, $routeParams, trafficData, DateHelper) {
     $scope.year = +$routeParams.year;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
@@ -41,10 +41,10 @@ angular.module('probytes.controllers', [])
 
       // totals
 
-      $scope.yearlySeconds = 365 * 24 * 3600;
+      $scope.yearlySeconds = DateHelper.elapsedSecondsInYear($scope.year);
     });
   })
-  .controller('MonthlyCtrl', function($scope, $routeParams, trafficData) {
+  .controller('MonthlyCtrl', function($scope, $routeParams, trafficData, DateHelper) {
     $scope.year = +$routeParams.year;
     $scope.month = +$routeParams.month;
     $scope.$watch('traffic', function() {
@@ -85,8 +85,6 @@ angular.module('probytes.controllers', [])
 
       // totals
 
-      // formula from https://github.com/arshaw/xdate/blob/master/src/xdate.js
-      var daysInMonth = 32 - new Date(Date.UTC($scope.year, $scope.month - 1, 32)).getUTCDate();
-      $scope.monthlySeconds = daysInMonth * 24 * 3600;
+      $scope.monthlySeconds = DateHelper.elapsedSecondsInMonth($scope.year, $scope.month);
     });
   });
