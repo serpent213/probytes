@@ -145,7 +145,7 @@ angular.module('probytes.charts', [])
               // recreate tooltip before showing
               // otherwise show/hide alternation ends up in the wrong state when switching too fast
               var content = 'Traffic: ' + $filter('number')(data[row].bytes, 2)  + ' GiB<br>' +
-                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
+                'Requests: ' + $filter('number')(data[row].requests) + ' k<br>' +
                 'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
               $(rowBarBytes[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
               $(rowBarBytes[row]).tooltip('show');
