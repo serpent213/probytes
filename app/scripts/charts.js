@@ -75,12 +75,23 @@ angular.module('probytes.charts', [])
         .attr("height", Math.round(y.rangeBand()));
 
     // bars (requests)
-    bars.enter().append("rect")
-        .attr("class", 'bar-req')
-        .attr("x", function(d) { return x(0); })
-        .attr("y", function(d) { return Math.round(y(d.hostname)) + 8; })
-        .attr("width", function(d) { return Math.abs(x2(d.requests) - x2(0)); })
-        .attr("height", 7);
+    var halfBarHeight = Math.round(y.rangeBand() / 2);
+    var quarterBarHeight = Math.round(y.rangeBand() / 4);
+
+    var requestBars = bars.enter().append('g')
+        .attr('class', 'bar-req');
+
+    requestBars.append('line')
+        .attr('x1', function(d) { return x2(0); })
+        .attr('x2', function(d) { return x2(d.requests); })
+        .attr('y1', function(d) { return Math.round(y(d.hostname)) + halfBarHeight; })
+        .attr('y2', function(d) { return Math.round(y(d.hostname)) + halfBarHeight; });
+
+    requestBars.append('line')
+        .attr('x1', function(d) { return x2(d.requests); })
+        .attr('x2', function(d) { return x2(d.requests); })
+        .attr('y1', function(d) { return Math.round(y(d.hostname)) + halfBarHeight - quarterBarHeight; })
+        .attr('y2', function(d) { return Math.round(y(d.hostname)) + halfBarHeight + quarterBarHeight; });
 
     // hostnames (y axis)
     bars.enter().append("text")
@@ -99,8 +110,7 @@ angular.module('probytes.charts', [])
 
     svg.append("text")
         .attr("class", "x axis-label")
-        .attr("text-anchor", "end")
-        .attr("x", width + margin.right - 5)
+        .attr("x", width + 10)
         .attr("y", -9)
         .text("[GiB]");
 
@@ -112,8 +122,7 @@ angular.module('probytes.charts', [])
 
     svg.append("text")
         .attr("class", "x axis-label")
-        .attr("text-anchor", "end")
-        .attr("x", width + margin.right - 5)
+        .attr("x", width + 10)
         .attr("y", height + 18)
         .text("[kreq]");
 

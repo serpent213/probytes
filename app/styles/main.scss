@@ -148,8 +148,10 @@ rect.bar-bytes {
   fill: #e58200;
 }
 
-rect.bar-req {
-  fill: #222;
+.bar-req line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
 
 // footer
