@@ -1,4 +1,4 @@
-# goodlogx configuration file
+# proper:bytes configuration file
 
 {
   # FYI
@@ -13,6 +13,15 @@
   # all entries are evaluated in order
   :hostname_mapping => [
     [/^www\.(.*)/, '\1'], # strip www prefix
+  ],
+
+  # optional list of hostnames to include
+  # if empty or missing, no filtering is done
+  # hostnames not on this list will be summarised as "unknown"
+  # evaluated after mapping
+  :hostname_whitelist => [
+    # 'example.com',         # strict match
+    # /a\.nother\.example$/, # regexp
   ],
 
   # frontend target directory

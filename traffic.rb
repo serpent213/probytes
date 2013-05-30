@@ -130,6 +130,10 @@ class Reader < EventMachine::FileTail
           hostname.gsub!(mapping[0], mapping[1])
         end
         puts "host after mapping: #{hostname}"
+        if @traffic.config[:hostname_whitelist] and not @traffic.config[:hostname_whitelist].empty?
+          hostname = 'unknown' unless @traffic.config[:hostname_whitelist].any? {|e| e.class == Regexp ? hostname.match(e) : hostname == e }
+        end
+        puts "host after whitelisting: #{hostname}"
         @traffic.increment_host(hostname, bytes_total)
       else
         puts "ignoring input: #{line}"
