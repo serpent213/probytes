@@ -17,6 +17,14 @@
         </li>
       </ul>
     </li>
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Hosts <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li ng-repeat="hostname in hostnames">
+          <a href="#/host/{{hostname}}">{{hostname}}</a>
+        </li>
+      </ul>
+    </li>
   </ul>
   <p class="server-name">{{serverName}}</p>
 </div>

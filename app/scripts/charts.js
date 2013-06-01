@@ -22,13 +22,13 @@ angular.module('probytes.charts', [])
 
         return width;
       },
-      horizontalBarChart: function(element, data) {
+      horizontalIntervalBarChart: function(element, data) {
         var elementWidth     = $(element[0]).innerWidth(),
             maxHostnameWidth = charts.maxTextWidth(element, _(data).map(function(d) { return d.hostname }), 'hostname'),
             margin           = {top: 30, right: 45, bottom: 22, left: maxHostnameWidth + 10 },
             rowHeight        = 30,
             width            = elementWidth - margin.left - margin.right,
-            height           = (data.length * rowHeight) - margin.top - margin.bottom;
+            height           = (data.length * rowHeight) - margin.top - margin.bottom; // TODO: margin does not belong here
 
         var x = d3.scale.linear()
             .domain([0, d3.max(data, function(d) { return d.bytes / Math.pow(2, 30) })])
@@ -160,6 +160,149 @@ angular.module('probytes.charts', [])
             $(rowBarBytes[row]).mouseout(hideTooltip);
             $(rowHostnames[row]).mouseover(showTooltip);
             $(rowHostnames[row]).mouseout(hideTooltip);
+          })(i);
+        }
+
+        $('.container').click(function() { $('.tooltip').remove(); });
+      },
+      horizontalHostBarChart: function(element, data) {
+        var elementWidth     = $(element[0]).innerWidth(),
+            maxDatetextWidth = charts.maxTextWidth(element, _(data).map(function(d) { return d.datetext }), 'datetext'),
+            margin           = {top: 30, right: 45, bottom: 22, left: maxDatetextWidth + 10 },
+            rowHeight        = 30,
+            width            = elementWidth - margin.left - margin.right,
+            height           = (data.length * rowHeight);
+
+        var x = d3.scale.linear()
+            .domain([0, d3.max(data, function(d) { return d.bytes / Math.pow(2, 30) })])
+            .range([0, width]);
+
+        var x2 = d3.scale.linear()
+            .domain([0, d3.max(data, function(d) { return d.requests / 1000 })])
+            .range([0, width]);
+
+        var y = d3.scale.ordinal()
+            // rangeRoundBands does produce a top margin sometimes, so rounding
+            // is done further down, when setting the y attributes to avoid anti-aliasing
+            .rangeBands([0, height], .22);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("top");
+
+        var xAxis2 = d3.svg.axis()
+            .scale(x2)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .orient("left");
+
+        d3.select(element[0]).html('');
+        var svg = d3.select(element[0]).append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // x.domain(d3.extent(data, function(d) { return d.bytes; })).nice();
+        y.domain(data.map(function(d) { return d.datetext; }));
+
+        var bars = svg.selectAll(".bar")
+          .data(data);
+
+        // bars (bytes)
+        bars.enter().append("rect")
+            .attr("class", 'bar-bytes')
+            .attr("x", function(d) { return x(0); })
+            .attr("y", function(d) { return Math.round(y(d.datetext)); })
+            .attr("width", function(d) { return Math.abs(x(d.bytes / Math.pow(2, 30)) - x(0)); })
+            .attr("height", Math.round(y.rangeBand()));
+
+        // bars (requests)
+        var halfBarHeight = Math.round(y.rangeBand() / 2);
+        var quarterBarHeight = Math.round(y.rangeBand() / 4);
+
+        var requestBars = bars.enter().append('g')
+            .attr('class', 'bar-req');
+
+        requestBars.append('line')
+            .attr('x1', function(d) { return x2(0); })
+            .attr('x2', function(d) { return x2(d.requests / 1000); })
+            .attr('y1', function(d) { return Math.round(y(d.datetext)) + halfBarHeight; })
+            .attr('y2', function(d) { return Math.round(y(d.datetext)) + halfBarHeight; });
+
+        requestBars.append('line')
+            .attr('x1', function(d) { return x2(d.requests / 1000); })
+            .attr('x2', function(d) { return x2(d.requests / 1000); })
+            .attr('y1', function(d) { return Math.round(y(d.datetext)) + halfBarHeight - quarterBarHeight; })
+            .attr('y2', function(d) { return Math.round(y(d.datetext)) + halfBarHeight + quarterBarHeight; });
+
+        // datetext (y axis)
+        bars.enter().append("text")
+            .attr("class", "datetext")
+            .attr("x", -10)
+            .attr("y", function(d) { return Math.round(y(d.datetext)); })
+            // .attr("dy", y.rangeBand() / 2)
+            .attr("dy", "1.15em")
+            .attr("text-anchor", "end")
+            .text(function(d) { return d.datetext; });
+
+        // bytes scale (x1 axis)
+        svg.append("g")
+            .attr("class", "x axis")
+            .call(xAxis);
+
+        svg.append("text")
+            .attr("class", "x axis-label")
+            .attr("x", width + 10)
+            .attr("y", -9)
+            .text("[GiB]");
+
+        // requests scale (x2 axis)
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr('transform', 'translate(0, ' + (height - 0) + ')')
+            .call(xAxis2);
+
+        svg.append("text")
+            .attr("class", "x axis-label")
+            .attr("x", width + 10)
+            .attr("y", height + 18)
+            .text("[kreq]");
+
+        // y axis
+        svg.append("g")
+            .attr("class", "y axis")
+          .append("line")
+            .attr("x1", x(0))
+            .attr("x2", x(0))
+            .attr("y2", height);
+
+        // tooltips
+        var rows = data.length;
+        var rowBarBytes = $('.bar-bytes', element);
+        var rowDatetexts = $('.datetext', element);
+        for (var i = 0; i < rows; i++) {
+          (function(row) {
+            function showTooltip() {
+              // recreate tooltip before showing
+              // otherwise show/hide alternation ends up in the wrong state when switching too fast
+              var content = '<strong><u>' + data[row].datetext + '</u></strong><br>' +
+                'Traffic: ' + $filter('number')(data[row].bytes / Math.pow(2, 30), 2)  + ' GiB<br>' +
+                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
+                'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
+              $(rowBarBytes[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
+              $(rowBarBytes[row]).tooltip('show');
+            }
+
+            function hideTooltip() {
+              $(rowBarBytes[row]).tooltip('destroy');
+            }
+
+            $(rowBarBytes[row]).mouseover(showTooltip);
+            $(rowBarBytes[row]).mouseout(hideTooltip);
+            $(rowDatetexts[row]).mouseover(showTooltip);
+            $(rowDatetexts[row]).mouseout(hideTooltip);
           })(i);
         }
 

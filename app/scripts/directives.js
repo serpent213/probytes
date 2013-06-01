@@ -37,6 +37,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           scope.years.forEach(function(year) {
             scope.months[year] = Object.keys(scope.traffic.byMonth[year]).sort(function(a, b) { return a - b }); // sort ascending
           });
+          scope.hostnames = _(Object.keys(scope.traffic.byHostname).sort()).uniq(true);
         });
       }
     };
@@ -57,7 +58,33 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
                 )});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            Charts.horizontalBarChart(element, niceData);
+            Charts.horizontalIntervalBarChart(element, niceData);
+          });
+        });
+      }
+    };
+  })
+  .directive('trafficHostBarChart', function(Charts, $rootScope) {
+    return {
+      scope: {dataset: '='},
+      link: function(scope, element, attrs) {
+        scope.$watch('dataset', function() {
+          if (!scope.dataset) return;
+
+          function cmp(a, b) {
+            if (a > b) return +1;
+            if (a < b) return -1;
+            return 0;
+          }
+
+          var niceData = scope.dataset.
+                sort(function(a, b) { return cmp(b.year, a.year) || cmp(b.month, a.month); }).
+                map(function(d) { return _(_(d).clone()).extend(
+                  {avgReqSize: d.bytes / d.requests}
+                )});
+
+          $rootScope.$watch('windowWidth', function(newVal, oldVal) {
+            Charts.horizontalHostBarChart(element, niceData);
           });
         });
       }

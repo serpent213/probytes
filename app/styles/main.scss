@@ -65,6 +65,10 @@ div.container {
 
 // navbar
 
+ul.dropdown-menu {
+  z-index: $zindexTooltip + 5;
+}
+
 div.navbar-inner .brand {
   a, a:hover {
     color: inherit;
@@ -138,6 +142,10 @@ text {
 }
 
 text.hostname {
+  font: 14px sans-serif;
+}
+
+text.datetext {
   font: 14px sans-serif;
 }
 

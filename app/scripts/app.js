@@ -16,6 +16,10 @@ angular.module('probytes', ['probytes.directives', 'probytes.services', 'probyte
         templateUrl: 'views/monthly.html',
         controller: 'MonthlyCtrl'
       })
+      .when('/host/:hostname', {
+        templateUrl: 'views/host.html',
+        controller: 'HostCtrl'
+      })
       .otherwise({
         redirectTo: '/monthly/' + localYear + '/' + localMonth
       });

@@ -19,14 +19,14 @@ angular.module('probytes.services', [])
 
           /*
           rawFromServer: [
-            {"hostname":"teralink.net","month":5,"year":2013,"requests":515,"bytes":8288738},
-            {"hostname":"schlag13.de","month":5,"year":2013,"requests":1,"bytes":355},
-            {"hostname":"213streams.com","month":5,"year":2013,"requests":2,"bytes":1038},
-            {"hostname":"213things.com","month":5,"year":2013,"requests":3,"bytes":1686},
-            {"hostname":"213tec.com","month":5,"year":2013,"requests":7,"bytes":7485},
-            {"hostname":"teralink.net","month":5,"year":2012,"requests":515,"bytes":8288738},
-            {"hostname":"teralink.net","month":6,"year":2012,"requests":515,"bytes":8288738},
-            {"hostname":"schlag13.de","month":5,"year":2012,"requests":1,"bytes":355},
+            {"hostname":"host1.net","month":5,"year":2013,"requests":515,"bytes":8288738},
+            {"hostname":"host2.de","month":5,"year":2013,"requests":1,"bytes":355},
+            {"hostname":"host3.com","month":5,"year":2013,"requests":2,"bytes":1038},
+            {"hostname":"host4.com","month":5,"year":2013,"requests":3,"bytes":1686},
+            {"hostname":"host5.com","month":5,"year":2013,"requests":7,"bytes":7485},
+            {"hostname":"host1.net","month":5,"year":2012,"requests":515,"bytes":8288738},
+            {"hostname":"host1.net","month":6,"year":2012,"requests":515,"bytes":8288738},
+            {"hostname":"host2.de","month":5,"year":2012,"requests":1,"bytes":355},
           ]
           */
 
@@ -46,15 +46,15 @@ angular.module('probytes.services', [])
           /*
           byYear: {
             2012: [
-              {"hostname":"teralink.net","requests":515,"bytes":8288738},
-              {"hostname":"schlag13.de","requests":1,"bytes":355},
+              {"hostname":"host1.net","requests":515,"bytes":8288738},
+              {"hostname":"host2.de","requests":1,"bytes":355},
             ],
             2013: [
-              {"hostname":"teralink.net","requests":515,"bytes":8288738},
-              {"hostname":"schlag13.de","requests":1,"bytes":355},
-              {"hostname":"213streams.com","requests":2,"bytes":1038},
-              {"hostname":"213things.com","requests":3,"bytes":1686},
-              {"hostname":"213tec.com","requests":7,"bytes":7485},
+              {"hostname":"host1.net","requests":515,"bytes":8288738},
+              {"hostname":"host2.de","requests":1,"bytes":355},
+              {"hostname":"host3.com","requests":2,"bytes":1038},
+              {"hostname":"host4.com","requests":3,"bytes":1686},
+              {"hostname":"host5.com","requests":7,"bytes":7485},
             ],
           }
           */
@@ -67,32 +67,51 @@ angular.module('probytes.services', [])
           byMonth: {
             2012: {
               10: [
-                {"hostname":"teralink.net","year":2012,"month":10,"requests":515,"bytes":8288738},
-                {"hostname":"schlag13.de","year":2012,"month":10,"requests":1,"bytes":355},
+                {"hostname":"host1.net","year":2012,"month":10,"requests":515,"bytes":8288738},
+                {"hostname":"host2.de","year":2012,"month":10,"requests":1,"bytes":355},
               ],
               11: [
-                {"hostname":"teralink.net","year":2012,"month":11,"requests":322,"bytes":47476565},
-                {"hostname":"schlag13.de","year":2012,"month":11,"requests":26,"bytes":27273},
+                {"hostname":"host1.net","year":2012,"month":11,"requests":322,"bytes":47476565},
+                {"hostname":"host2.de","year":2012,"month":11,"requests":26,"bytes":27273},
               ],
               12: [
-                {"hostname":"teralink.net","year":2012,"month":12,"requests":515,"bytes":8288738},
-                {"hostname":"schlag13.de","year":2012,"month":12,"requests":1,"bytes":355},
+                {"hostname":"host1.net","year":2012,"month":12,"requests":515,"bytes":8288738},
+                {"hostname":"host2.de","year":2012,"month":12,"requests":1,"bytes":355},
               ],
             },
             2013: {
               1: [
-                {"hostname":"teralink.net","year":2013,"month":1,"requests":515,"bytes":8288738},
-                {"hostname":"schlag13.de","year":2013,"month":1,"requests":1,"bytes":355},
-                {"hostname":"213things.com","year":2013,"month":1,"requests":3,"bytes":1686},
-                {"hostname":"213tec.com","year":2013,"month":1,"requests":7,"bytes":7485},
+                {"hostname":"host1.net","year":2013,"month":1,"requests":515,"bytes":8288738},
+                {"hostname":"host2.de","year":2013,"month":1,"requests":1,"bytes":355},
+                {"hostname":"host4.com","year":2013,"month":1,"requests":3,"bytes":1686},
+                {"hostname":"host5.com","year":2013,"month":1,"requests":7,"bytes":7485},
               ],
               2: [
-                {"hostname":"teralink.net","year":2013,"month":2,"requests":515,"bytes":8288738},
-                {"hostname":"schlag13.de","year":2013,"month":2,"requests":1,"bytes":355},
-                {"hostname":"213things.com","year":2013,"month":2,"requests":3,"bytes":1686},
-                {"hostname":"213tec.com","year":2013,"month":2,"requests":7,"bytes":7485},
+                {"hostname":"host1.net","year":2013,"month":2,"requests":515,"bytes":8288738},
+                {"hostname":"host2.de","year":2013,"month":2,"requests":1,"bytes":355},
+                {"hostname":"host4.com","year":2013,"month":2,"requests":3,"bytes":1686},
+                {"hostname":"host5.com","year":2013,"month":2,"requests":7,"bytes":7485},
               ],
             }
+          }
+          */
+
+          transformed.byHostname = _(data.traffic).groupBy('hostname');
+
+          /*
+          byHostname: {
+            "host1.net": [
+              {"hostname":"host1.net","year":2013,"month":1,"requests":515,"bytes":8288738},
+              {"hostname":"host1.net","year":2013,"month":2,"requests":515,"bytes":8288738},
+            ],
+            "host2.de": [
+              {"hostname":"host2.de","year":2013,"month":1,"requests":1,"bytes":355},
+              {"hostname":"host2.de","year":2013,"month":2,"requests":1,"bytes":355},
+            ],
+            "host4.com": [
+              {"hostname":"host4.com","year":2013,"month":1,"requests":3,"bytes":1686},
+              {"hostname":"host4.com","year":2013,"month":2,"requests":3,"bytes":1686},
+            ],
           }
           */
 

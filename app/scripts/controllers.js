@@ -87,4 +87,54 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       $scope.monthlySeconds = DateHelper.elapsedSecondsInMonth($scope.year, $scope.month);
     });
+  })
+  .controller('HostCtrl', function($scope, $routeParams, $filter, trafficData) {
+    $scope.hostname = $routeParams.hostname;
+    $scope.$watch('traffic', function() {
+      $scope.prevLink = null;
+      $scope.nextLink = null;
+      if (!$scope.traffic) return;
+
+      // data scope
+
+      $scope.hostTraffic = _($scope.traffic.byHostname[$scope.hostname]).map(function(d) {
+        return _(_(d).clone()).extend({datetext: $filter('monthName')(d.month) + ' ' + d.year});
+      });
+
+      // prev/next links
+
+      /*
+      var hostIndex = $scope.hostTraffic.indexOf($scope.hostname);
+
+      if (hostIndex > 0) {
+        $scope.prevLink = {
+          active: true,
+          link: '/host/' + $scope.hostTraffic[hostIndex - 1].hostname,
+          text: $scope.hostTraffic[hostIndex - 1].hostname,
+        };
+      }
+
+      if (hostIndex < $scope.hostTraffic.length - 1) {
+        $scope.nextLink = {
+          active: true,
+          link: '/host/' + $scope.hostTraffic[hostIndex + 1].hostname,
+          text: $scope.hostTraffic[hostIndex + 1].hostname,
+        };
+      }
+      */
+
+      // totals
+
+      function cmp(a, b) {
+        if (a > b) return +1;
+        if (a < b) return -1;
+        return 0;
+      }
+
+      var earliestRecord = $scope.hostTraffic.
+            sort(function(a, b) { return cmp(a.year, b.year) || cmp(a.month, b.month); })[0],
+          hostStartDate = new Date(earliestRecord.year, earliestRecord.month - 1, 1);
+
+      $scope.hostSeconds = (new Date() - hostStartDate) / 1000;
+    });
   });
