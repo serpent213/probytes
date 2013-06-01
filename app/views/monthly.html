@@ -1,14 +1,14 @@
 <div class="row">
   <div class="span12">
-    <div class="well well-large interval-heading">
-      <div class="pull-left prev-next-link">
+    <div class="well well-large subject-heading">
+      <div class="prev-link">
         <div ng-switch on="!!prevLink"><div ng-switch-when="true">
           <a ng-href="#/monthly/{{prevLink.year}}/{{prevLink.month}}">
             <i class="icon-chevron-sign-left"></i> {{prevLink.month | monthName}} {{prevLink.year}}
           </a>
         </div></div>
       </div>
-      <div class="pull-right prev-next-link">
+      <div class="next-link">
         <div ng-switch on="!!nextLink"><div ng-switch-when="true">
           <a ng-href="#/monthly/{{nextLink.year}}/{{nextLink.month}}">
             {{nextLink.month | monthName}} {{nextLink.year}} <i class="icon-chevron-sign-right"></i>

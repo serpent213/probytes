@@ -1,14 +1,14 @@
 <div class="row">
   <div class="span12">
-    <div class="well well-large interval-heading">
-      <div class="pull-left prev-next-link">
+    <div class="well well-large subject-heading">
+      <div class="prev-link">
         <div ng-switch on="!!prevLink"><div ng-switch-when="true">
           <a ng-href="#/host/{{prevLink.hostname}}">
             <i class="icon-chevron-sign-left"></i> {{prevLink.hostname}}
           </a>
         </div></div>
       </div>
-      <div class="pull-right prev-next-link">
+      <div class="next-link">
         <div ng-switch on="!!nextLink"><div ng-switch-when="true">
           <a ng-href="#/host/{{nextLink.hostname}}">
             {{nextLink.hostname}} <i class="icon-chevron-sign-right"></i>
