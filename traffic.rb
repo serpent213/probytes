@@ -99,24 +99,24 @@ class Traffic
       }
     end
 
-    def inject_month(hostnames, month, year)
+    inject_month = ->(hostnames, month, year) do
       fake_time = Time.local(year, month)
       hostnames.each do |hostname|
         increment_host(hostname, hosttraffic[hostname][:bytes], hosttraffic[hostname][:requests])
-        hosttraffic[hostname][:bytes] *= rand() * 0.3 + 0.85
-        hosttraffic[hostname][:requests] *= rand() * 0.3 + 0.85
+        hosttraffic[hostname][:bytes] = (hosttraffic[hostname][:bytes] * (rand() * 0.3 + 0.85)).floor
+        hosttraffic[hostname][:requests] = (hosttraffic[hostname][:requests] * (rand() * 0.3 + 0.85)).floor
       end
       update_stats(fake_time)
     end
 
     time = Time.now
     year = time.year - 2
-    (3 + rand(7) .. 12).each {|month| inject_month(hostnames, month, year) }
+    (3 + rand(7) .. 12).each {|month| inject_month.call(hostnames, month, year) }
     year = time.year - 1
-    (1 .. 12).each {|month| inject_month(hostnames, month, year) }
+    (1 .. 12).each {|month| inject_month.call(hostnames, month, year) }
     if time.month > 1
       year = time.year
-      (1 .. time.month - 1).each {|month| inject_month(hostnames, month, year) }
+      (1 .. time.month - 1).each {|month| inject_month.call(hostnames, month, year) }
     end
   end
 end
