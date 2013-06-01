@@ -71,12 +71,6 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          function cmp(a, b) {
-            if (a > b) return +1;
-            if (a < b) return -1;
-            return 0;
-          }
-
           var niceData = scope.dataset.
                 sort(function(a, b) { return cmp(b.year, a.year) || cmp(b.month, a.month); }).
                 map(function(d) { return _(_(d).clone()).extend(

@@ -101,12 +101,6 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       // totals
 
-      function cmp(a, b) {
-        if (a > b) return +1;
-        if (a < b) return -1;
-        return 0;
-      }
-
       var earliestRecord = $scope.hostTraffic.
             sort(function(a, b) { return cmp(a.year, b.year) || cmp(a.month, b.month); })[0],
           hostStartDate = new Date(earliestRecord.year, earliestRecord.month - 1, 1);
