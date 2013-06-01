@@ -35,9 +35,9 @@ class Traffic
     update_frontend_data
   end
 
-  def increment_host(hostname, bytes)
+  def increment_host(hostname, bytes, requests = 1)
     @host_traffic[hostname] ||= {:requests => 0, :bytes => 0}
-    @host_traffic[hostname][:requests] += 1
+    @host_traffic[hostname][:requests] += requests
     @host_traffic[hostname][:bytes] += bytes
   end
 
@@ -86,15 +86,25 @@ class Traffic
   end
 
   def mockup
-    hostwords = %w{amet consetetur diam dolor eirmod elitr et invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor ut}
+    hostwords = %w{amet consetetur diam dolor eirmod elitr invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor}
     tlds = %w{.com .net .org .de}
     product = hostwords.product(tlds)
     hostnames = product.sample(product.size / 3).map(&:join)
+    hosttraffic = {}
+
+    hostnames.each do |hostname|
+      hosttraffic[hostname] = {
+        :bytes => (rand()**2.3 * 23 * 2**30).floor,
+        :requests => (rand()**2.3 * 23 * 2**15).floor
+      }
+    end
 
     def inject_month(hostnames, month, year)
       fake_time = Time.local(year, month)
       hostnames.each do |hostname|
-        increment_host(hostname, (rand()**2.3 * 23 * 2**30).floor)
+        increment_host(hostname, hosttraffic[hostname][:bytes], hosttraffic[hostname][:requests])
+        hosttraffic[hostname][:bytes] *= rand() * 0.3 + 0.85
+        hosttraffic[hostname][:requests] *= rand() * 0.3 + 0.85
       end
       update_stats(fake_time)
     end
