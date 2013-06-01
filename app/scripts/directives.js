@@ -42,7 +42,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       }
     };
   })
-  .directive('trafficIntervalBarChart', function(Charts, $rootScope) {
+  .directive('trafficIntervalBarChart', function(Charts, $rootScope, $location) {
     return {
       scope: {dataset: '='},
       link: function(scope, element, attrs) {
@@ -50,16 +50,21 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           if (!scope.dataset) return;
 
           var augmentedData = scope.dataset.
-                map(function(d) { return _(_(d).clone()).extend({avgReqSize: d.bytes / d.requests})});
+                map(function(d) { return _(_(d).clone()).extend(
+                  {avgReqSize: d.bytes / d.requests,
+                   crosslink: '/host/' + d.hostname})});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
             Charts.horizontalBarChart(element, augmentedData, 'hostname');
+            $('.yaxis-label').each(function(i, row) {
+              $(row).click(function(e) { $location.path(augmentedData[i].crosslink); scope.$apply(); });
+            });
           });
         });
       }
     };
   })
-  .directive('trafficHostBarChart', function(Charts, $rootScope) {
+  .directive('trafficHostBarChart', function(Charts, $rootScope, $location) {
     return {
       scope: {dataset: '='},
       link: function(scope, element, attrs) {
@@ -67,10 +72,15 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           if (!scope.dataset) return;
 
           var augmentedData = scope.dataset.
-                map(function(d) { return _(_(d).clone()).extend({avgReqSize: d.bytes / d.requests})});
+                map(function(d) { return _(_(d).clone()).extend(
+                  {avgReqSize: d.bytes / d.requests,
+                   crosslink: '/monthly/' + d.year + '/' + d.month})});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
             Charts.horizontalBarChart(element, augmentedData, 'datetext');
+            $('.yaxis-label').each(function(i, row) {
+              $(row).click(function(e) { $location.path(augmentedData[i].crosslink); scope.$apply(); });
+            });
           });
         });
       }
@@ -95,8 +105,9 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           while (pieBytes / totalBytes < 0.9) {
             var p = Math.round(data[i].bytes / totalBytes * 100);
             pieData.push(_(_(data[i]).clone()).extend({
-              percent: p,
-              avgReqSize: data[i].bytes / data[i].requests
+              percent:    p,
+              avgReqSize: data[i].bytes / data[i].requests,
+              crosslink:  '/host/' + data[i].hostname,
             }));
             pieBytes += data[i].bytes;
             pieRequests += data[i].requests;
