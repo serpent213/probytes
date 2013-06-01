@@ -3,19 +3,19 @@
     <div class="well well-large interval-heading">
       <div class="pull-left prev-next-link">
         <div ng-switch on="!!prevLink"><div ng-switch-when="true">
-          <a href="#/monthly/{{prevLink.year}}/{{prevLink.month}}">
+          <a ng-href="#/monthly/{{prevLink.year}}/{{prevLink.month}}">
             <i class="icon-chevron-sign-left"></i> {{prevLink.month | monthName}} {{prevLink.year}}
           </a>
         </div></div>
       </div>
       <div class="pull-right prev-next-link">
         <div ng-switch on="!!nextLink"><div ng-switch-when="true">
-          <a href="#/monthly/{{nextLink.year}}/{{nextLink.month}}">
+          <a ng-href="#/monthly/{{nextLink.year}}/{{nextLink.month}}">
             {{nextLink.month | monthName}} {{nextLink.year}} <i class="icon-chevron-sign-right"></i>
           </a>
         </div></div>
       </div>
-      <h1>{{month | monthName}} <a href="#/yearly/{{year}}">{{year}}</a></h1>
+      <h1>{{month | monthName}} <a ng-href="#/yearly/{{year}}">{{year}}</a></h1>
     </div>
   </div>
 </div>

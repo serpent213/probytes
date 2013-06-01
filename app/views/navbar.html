@@ -6,22 +6,22 @@
   </span>
   <ul class="nav">
     <li class="dropdown" ng-repeat="year in years">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{year}} <b class="caret"></b></a>
+      <a class="dropdown-toggle" data-toggle="dropdown" ng-href="#">{{year}} <b class="caret"></b></a>
       <ul class="dropdown-menu">
         <li ng-repeat="month in months[year]">
-          <a href="#/monthly/{{year}}/{{month}}">{{month | monthName}}</a>
+          <a ng-href="#/monthly/{{year}}/{{month}}">{{month | monthName}}</a>
         </li>
         <li class="divider"></li>
         <li>
-          <a href="#/yearly/{{year}}">Whole year</a>
+          <a ng-href="#/yearly/{{year}}">Whole year</a>
         </li>
       </ul>
     </li>
     <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Hosts <b class="caret"></b></a>
+      <a class="dropdown-toggle" data-toggle="dropdown" ng-href="#">Hosts <b class="caret"></b></a>
       <ul class="dropdown-menu">
         <li ng-repeat="hostname in hostnames">
-          <a href="#/host/{{hostname}}">{{hostname}}</a>
+          <a ng-href="#/host/{{hostname}}">{{hostname}}</a>
         </li>
       </ul>
     </li>
