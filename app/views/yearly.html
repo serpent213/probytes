@@ -2,14 +2,14 @@
   <div class="span12">
     <div class="well well-large interval-heading">
       <div class="pull-left prev-next-link">
-        <div ng-switch on="prevLink.active"><div ng-switch-when="true">
+        <div ng-switch on="!!prevLink"><div ng-switch-when="true">
           <a href="#/yearly/{{prevLink.year}}">
             <i class="icon-chevron-sign-left"></i> {{prevLink.year}}
           </a>
         </div></div>
       </div>
       <div class="pull-right prev-next-link">
-        <div ng-switch on="nextLink.active"><div ng-switch-when="true">
+        <div ng-switch on="!!nextLink"><div ng-switch-when="true">
           <a href="#/yearly/{{nextLink.year}}">
             {{nextLink.year}} <i class="icon-chevron-sign-right"></i>
           </a>

@@ -26,17 +26,11 @@ angular.module('probytes.controllers', ['probytes.datetime'])
           nextYear = $scope.year + 1;
 
       if ($scope.traffic.byYear[prevYear]) {
-        $scope.prevLink = {
-          active: true,
-          year: prevYear,
-        };
+        $scope.prevLink = {year: prevYear};
       }
 
       if ($scope.traffic.byYear[nextYear]) {
-        $scope.nextLink = {
-          active: true,
-          year: nextYear,
-        };
+        $scope.nextLink = {year: nextYear};
       }
 
       // totals
@@ -68,19 +62,11 @@ angular.module('probytes.controllers', ['probytes.datetime'])
           nextYear = tempDate.getFullYear();
 
       if ($scope.traffic.byMonth[prevYear][prevMonth]) {
-        $scope.prevLink = {
-          active: true,
-          month: prevMonth,
-          year: prevYear,
-        };
+        $scope.prevLink = {month: prevMonth, year: prevYear};
       }
 
       if ($scope.traffic.byMonth[nextYear][nextMonth]) {
-        $scope.nextLink = {
-          active: true,
-          month: nextMonth,
-          year: nextYear,
-        };
+        $scope.nextLink = {month: nextMonth, year: nextYear};
       }
 
       // totals
@@ -106,17 +92,11 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       var hostIndex = $scope.traffic.hostnames.indexOf($scope.hostname);
 
       if (hostIndex > 0) {
-        $scope.prevLink = {
-          active: true,
-          hostname: $scope.traffic.hostnames[hostIndex - 1],
-        };
+        $scope.prevLink = {hostname: $scope.traffic.hostnames[hostIndex - 1]};
       }
 
       if (hostIndex < $scope.traffic.hostnames.length - 1) {
-        $scope.nextLink = {
-          active: true,
-          hostname: $scope.traffic.hostnames[hostIndex + 1],
-        };
+        $scope.nextLink = {hostname: $scope.traffic.hostnames[hostIndex + 1]};
       }
 
       // totals
