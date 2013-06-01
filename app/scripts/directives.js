@@ -58,7 +58,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
                 )});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            Charts.horizontalIntervalBarChart(element, niceData);
+            Charts.horizontalBarChart(element, niceData, 'hostname');
           });
         });
       }
@@ -78,7 +78,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
                 )});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            Charts.horizontalHostBarChart(element, niceData);
+            Charts.horizontalBarChart(element, niceData, 'datetext');
           });
         });
       }
