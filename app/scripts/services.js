@@ -97,6 +97,7 @@ angular.module('probytes.services', [])
           */
 
           transformed.byHostname = _(data.traffic).groupBy('hostname');
+          transformed.hostnames = _(Object.keys(transformed.byHostname).sort()).uniq(true);
 
           /*
           byHostname: {

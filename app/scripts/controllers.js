@@ -103,25 +103,21 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       // prev/next links
 
-      /*
-      var hostIndex = $scope.hostTraffic.indexOf($scope.hostname);
+      var hostIndex = $scope.traffic.hostnames.indexOf($scope.hostname);
 
       if (hostIndex > 0) {
         $scope.prevLink = {
           active: true,
-          link: '/host/' + $scope.hostTraffic[hostIndex - 1].hostname,
-          text: $scope.hostTraffic[hostIndex - 1].hostname,
+          hostname: $scope.traffic.hostnames[hostIndex - 1],
         };
       }
 
-      if (hostIndex < $scope.hostTraffic.length - 1) {
+      if (hostIndex < $scope.traffic.hostnames.length - 1) {
         $scope.nextLink = {
           active: true,
-          link: '/host/' + $scope.hostTraffic[hostIndex + 1].hostname,
-          text: $scope.hostTraffic[hostIndex + 1].hostname,
+          hostname: $scope.traffic.hostnames[hostIndex + 1],
         };
       }
-      */
 
       // totals
 

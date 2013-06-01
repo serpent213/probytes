@@ -37,7 +37,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
           scope.years.forEach(function(year) {
             scope.months[year] = Object.keys(scope.traffic.byMonth[year]).sort(function(a, b) { return a - b }); // sort ascending
           });
-          scope.hostnames = _(Object.keys(scope.traffic.byHostname).sort()).uniq(true);
+          scope.hostnames = scope.traffic.hostnames;
         });
       }
     };
