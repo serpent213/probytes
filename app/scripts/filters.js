@@ -52,7 +52,7 @@ angular.module('probytes.filters', [])
           value = Math.abs(value);
         }
 
-        var unit = units[Math.min(8, Math.floor(Math.log(value) / Math.log(10) / 3))];
+        var unit = units[Math.min(8, Math.floor(Math.log(value) / Math.log(10) / 3 + 0.001))];
 
         return function(r) {
           return [r / unit.divisor, unit.prefix];
