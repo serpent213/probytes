@@ -18,7 +18,8 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       // data scope
 
-      $scope.yearlyTraffic = $scope.traffic.byYear[$scope.year];
+      $scope.yearlyTraffic = _($scope.traffic.byYear[$scope.year]).
+        sortBy(function(d) { return -d.bytes; });
 
       // prev/next links
 
@@ -48,7 +49,8 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       // data scope
 
-      $scope.monthlyTraffic = $scope.traffic.byMonth[$scope.year][$scope.month];
+      $scope.monthlyTraffic = _($scope.traffic.byMonth[$scope.year][$scope.month]).
+        sortBy(function(d) { return -d.bytes; });
 
       // prev/next links
 
@@ -84,8 +86,9 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       // data scope
 
       $scope.hostTraffic = _($scope.traffic.byHostname[$scope.hostname]).map(function(d) {
-        return _(_(d).clone()).extend({datetext: $filter('monthName')(d.month) + ' ' + d.year});
-      });
+          return _(_(d).clone()).extend({datetext: $filter('monthName')(d.month) + ' ' + d.year});
+        }).
+        sort(function(a, b) { return cmp(b.year, a.year) || cmp(b.month, a.month); }); // sort descending
 
       // prev/next links
 
@@ -101,8 +104,7 @@ angular.module('probytes.controllers', ['probytes.datetime'])
 
       // totals
 
-      var earliestRecord = $scope.hostTraffic.
-            sort(function(a, b) { return cmp(a.year, b.year) || cmp(a.month, b.month); })[0],
+      var earliestRecord = $scope.hostTraffic[$scope.hostTraffic.length - 1],
           hostStartDate = new Date(earliestRecord.year, earliestRecord.month - 1, 1);
 
       $scope.hostSeconds = (new Date() - hostStartDate) / 1000;

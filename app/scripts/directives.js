@@ -42,23 +42,18 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       }
     };
   })
-  .directive('trafficBarChart', function(Charts, $rootScope) {
+  .directive('trafficIntervalBarChart', function(Charts, $rootScope) {
     return {
       scope: {dataset: '='},
       link: function(scope, element, attrs) {
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var niceData = _(_(scope.dataset).
-                sortBy(function(d) { return -d.bytes })).
-                map(function(d) { return _(_(d).clone()).extend(
-                  {bytes:      d.bytes,
-                   requests:   d.requests,
-                   avgReqSize: d.bytes / d.requests}
-                )});
+          var augmentedData = scope.dataset.
+                map(function(d) { return _(_(d).clone()).extend({avgReqSize: d.bytes / d.requests})});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            Charts.horizontalBarChart(element, niceData, 'hostname');
+            Charts.horizontalBarChart(element, augmentedData, 'hostname');
           });
         });
       }
@@ -71,14 +66,11 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var niceData = scope.dataset.
-                sort(function(a, b) { return cmp(b.year, a.year) || cmp(b.month, a.month); }).
-                map(function(d) { return _(_(d).clone()).extend(
-                  {avgReqSize: d.bytes / d.requests}
-                )});
+          var augmentedData = scope.dataset.
+                map(function(d) { return _(_(d).clone()).extend({avgReqSize: d.bytes / d.requests})});
 
           $rootScope.$watch('windowWidth', function(newVal, oldVal) {
-            Charts.horizontalBarChart(element, niceData, 'datetext');
+            Charts.horizontalBarChart(element, augmentedData, 'datetext');
           });
         });
       }
@@ -91,8 +83,7 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var data          = _(scope.dataset).
-                sortBy(function(d) { return -d.bytes }),
+          var data          = scope.dataset,
               totalBytes    = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0),
               totalRequests = _(data).reduce(function(memo, host) { return memo + host.requests }, 0),
               pieData       = [],
