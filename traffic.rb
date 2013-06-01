@@ -89,7 +89,7 @@ class Traffic
     hostwords = %w{amet consetetur diam dolor eirmod elitr et invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor ut}
     tlds = %w{.com .net .org .de}
     product = hostwords.product(tlds)
-    hostnames = product.sample(product.size / 2).map(&:join)
+    hostnames = product.sample(product.size / 3).map(&:join)
 
     def inject_month(hostnames, month, year)
       fake_time = Time.local(year, month)
