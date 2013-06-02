@@ -6,56 +6,36 @@ angular.module('probytes.filters', [])
   .factory('Prefix', function() {
     var pfx = {
       binaryPrefixFactory: function(value) {
-        var units = [
-          {prefix: '', divisor: 1},
-          {prefix: 'Ki', divisor: Math.pow(2, 10)},
-          {prefix: 'Mi', divisor: Math.pow(2, 20)},
-          {prefix: 'Gi', divisor: Math.pow(2, 30)},
-          {prefix: 'Ti', divisor: Math.pow(2, 40)},
-          {prefix: 'Pi', divisor: Math.pow(2, 50)},
-          {prefix: 'Ei', divisor: Math.pow(2, 60)},
-          {prefix: 'Zi', divisor: Math.pow(2, 70)},
-          {prefix: 'Yi', divisor: Math.pow(2, 80)},
-        ];
-
         if (Array.isArray(value)) {
           value = Math.max.apply(null, value.map(function(d) { return Math.abs(d) }));
         } else {
           value = Math.abs(value);
         }
 
-        var unit = units[Math.min(8, Math.floor(Math.log(value) / Math.log(2) / 10))];
+        var unit    = Math.min(8, Math.floor(Math.log(value) / Math.log(2) / 10)),
+            prefix  = ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'][unit],
+            divisor = Math.pow(2, unit * 10);
 
         return function(r) {
-          return [r / unit.divisor, unit.prefix];
+          return [r / divisor, prefix];
         };
       },
       binaryPrefix: function(value) {
         return pfx.binaryPrefixFactory(value)(value);
       },
       decimalPrefixFactory: function(value) {
-        var units = [
-          {prefix: '', divisor: 1},
-          {prefix: 'k', divisor: Math.pow(10, 3)},
-          {prefix: 'M', divisor: Math.pow(10, 6)},
-          {prefix: 'G', divisor: Math.pow(10, 9)},
-          {prefix: 'T', divisor: Math.pow(10, 12)},
-          {prefix: 'P', divisor: Math.pow(10, 15)},
-          {prefix: 'E', divisor: Math.pow(10, 18)},
-          {prefix: 'Z', divisor: Math.pow(10, 21)},
-          {prefix: 'Y', divisor: Math.pow(10, 24)},
-        ];
-
         if (Array.isArray(value)) {
           value = Math.max.apply(null, value.map(function(d) { return Math.abs(d) }));
         } else {
           value = Math.abs(value);
         }
 
-        var unit = units[Math.min(8, Math.floor(Math.log(value) / Math.log(10) / 3 + 0.001))];
+        var unit    = Math.min(8, Math.floor(Math.log(value) / Math.log(10) / 3 + 0.001)), // add something to hide rounding errors
+            prefix  = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'][unit],
+            divisor = Math.pow(10, unit * 3);
 
         return function(r) {
-          return [r / unit.divisor, unit.prefix];
+          return [r / divisor, prefix];
         };
       },
       decimalPrefix: function(value) {
