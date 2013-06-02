@@ -2,19 +2,19 @@
   <tbody>
     <tr>
       <th>Traffic</th>
-      <td>{{totalGiB | number:1}} GiB</td>
+      <td>{{totalBytes | binaryPrefix:2}}B</td>
     </tr>
     <tr>
       <th>Requests</th>
-      <td>{{totalRequests | number}}</td>
+      <td>{{totalRequests | decimalPrefix:2}}</td>
     </tr>
     <tr>
       <th>Average bandwidth</th>
-      <td>{{avgMbitS | number:2}} MBit/s</td>
+      <td>{{avgBitS | binaryPrefix:2}}bit/s</td>
     </tr>
     <tr>
       <th>Average load</th>
-      <td>{{avgLoad | number:1}} requests/s</td>
+      <td>{{avgLoad | number:2}} requests/s</td>
     </tr>
   </tbody>
 </table>

@@ -22,6 +22,12 @@ angular.module('probytes.charts', [])
 
         return width;
       },
+      tooltipContent: function(entity, yAxisField) {
+        return '<strong><u>' + entity[yAxisField] + '</u></strong><br>' +
+          'Traffic: ' + $filter('binaryPrefix')(entity.bytes, 2)  + 'B<br>' +
+          'Requests: ' + $filter('decimalPrefix')(entity.requests, 2) + '<br>' +
+          'Avg. request size: ' + $filter('binaryPrefix')(entity.avgReqSize, 2) + 'B';
+      },
       horizontalBarChart: function(element, data, yAxisField) {
         var elementWidth       = $(element[0]).innerWidth(),
             maxYAxisLabelWidth = charts.maxTextWidth(element, _(data).map(function(d) { return d[yAxisField] }), 'yaxis-label'),
@@ -142,11 +148,11 @@ angular.module('probytes.charts', [])
             function showTooltip() {
               // recreate tooltip before showing
               // otherwise show/hide alternation ends up in the wrong state when switching too fast
-              var content = '<strong><u>' + data[row][yAxisField] + '</u></strong><br>' +
-                'Traffic: ' + $filter('number')(data[row].bytes / Math.pow(2, 30), 2)  + ' GiB<br>' +
-                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
-                'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
-              $(rowBarBytes[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
+              $(rowBarBytes[row]).tooltip(
+                {title: charts.tooltipContent(data[row], yAxisField),
+                 html: true,
+                 trigger: 'manual',
+                 container: 'body'});
               $(rowBarBytes[row]).tooltip('show');
             }
 
@@ -241,11 +247,11 @@ angular.module('probytes.charts', [])
             function showTooltip() {
               // recreate tooltip before showing
               // otherwise show/hide alternation ends up in the wrong state when switching too fast
-              var content = '<strong><u>' + data[row].hostname + '</u></strong><br>' +
-                'Traffic: ' + $filter('number')(data[row].bytes / Math.pow(2, 30), 2)  + ' GiB<br>' +
-                'Requests: ' + $filter('number')(data[row].requests) + '<br>' +
-                'Avg. request size: ' + $filter('number')(data[row].avgReqSize, 0) + ' B';
-              $(rowPercentages[row]).tooltip({title: content, html: true, trigger: 'manual', container: 'body'});
+              $(rowPercentages[row]).tooltip(
+                {title: charts.tooltipContent(data[row], 'hostname'),
+                 html: true,
+                 trigger: 'manual',
+                 container: 'body'});
               $(rowPercentages[row]).tooltip('show');
             }
 

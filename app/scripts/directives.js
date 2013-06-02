@@ -138,12 +138,9 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
         scope.$watch('dataset', function() {
           if (!scope.dataset) return;
 
-          var data = _(scope.dataset).
-                map(function(d) { return _(_(d).clone()).extend({ bytes: d.bytes / Math.pow(2, 30) }) });
-
-          scope.totalGiB      = _(data).reduce(function(memo, host) { return memo + host.bytes }, 0);
-          scope.totalRequests = _(data).reduce(function(memo, host) { return memo + host.requests }, 0);
-          scope.avgMbitS      = scope.totalGiB * 1024 * 8 / scope.intervalSeconds;
+          scope.totalBytes    = _(scope.dataset).reduce(function(memo, host) { return memo + host.bytes }, 0);
+          scope.totalRequests = _(scope.dataset).reduce(function(memo, host) { return memo + host.requests }, 0);
+          scope.avgBitS       = scope.totalBytes * 8 / scope.intervalSeconds;
           scope.avgLoad       = scope.totalRequests / scope.intervalSeconds;
         });
       }
