@@ -168,32 +168,40 @@ class Daemon
 
   def write_pid(pid)
     File.open(PID_FILE, 'w') {|f| f.puts pid }
-    FileUtils.chown(nil, @options[:group_id], PID_FILE) if @options[:group_id]
-    FileUtils.chown(@options[:user_id], nil, PID_FILE) if @options[:user_id]
+    # FileUtils.chown(nil, @options[:group_id], PID_FILE) if @options[:group_id]
+    # FileUtils.chown(@options[:user_id], nil, PID_FILE) if @options[:user_id]
   end
 
   def daemonise
     if pid = get_pid
-      warn "probytesd appears to be running (PID #{pid})"
+      warn "probytesd appears to be running (PID #{pid}) -- remove #{PID_FILE} if it is not"
       exit(-1)
     end
 
     STDERR.puts "euid before daemonising: #{Process.euid}"
     Process.daemon
-    pid = $$
-    STDERR.reopen('/tmp/probytesd.log')
+    child_pid = fork do
+      pid = $$
+      STDERR.reopen('/tmp/probytesd.log')
 
-    begin
-      STDERR.puts "euid before writing pidfile: #{Process.euid}"
-      write_pid(pid)
-      # Process.detach(pid)
-    rescue => e
-      # Process.kill('TERM', pid)
-      warn "cannot write PID file: #{e.message}"
-      exit(2)
+      begin
+        STDERR.puts "euid before writing pidfile: #{Process.euid}"
+        write_pid(pid)
+        # Process.detach(pid)
+      rescue => e
+        # Process.kill('TERM', pid)
+        warn "cannot write PID file: #{e.message}"
+        exit(2)
+      end
+
+      core
     end
 
-    core
+    STDERR.reopen('/tmp/probytesd2.log')
+    STDERR.puts('waiting for child')
+    Process.wait(child_pid)
+    STDERR.puts('removing PID file')
+    File.delete(PID_FILE)
   end
 
   def core
@@ -238,7 +246,7 @@ class Daemon
       EM.add_periodic_timer(traffic.config[:update_interval]) do
         traffic.update_stats
       end
-      EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
     end
   end
 
@@ -251,7 +259,7 @@ class Daemon
       EM.add_periodic_timer(traffic.config[:update_interval]) do
         traffic.update_frontend_data
       end
-      EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
     end
   end
 end
