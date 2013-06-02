@@ -2,8 +2,8 @@
 
 /* Charting helpers */
 
-angular.module('probytes.charts', [])
-  .factory('Charts', function($filter) {
+angular.module('probytes.charts', ['probytes.filters'])
+  .factory('Charts', function($filter, Prefix) {
     var charts = {
       maxTextWidth: function(element, strings, classname) {
         var svg = d3.select(element[0]).append("svg")
@@ -30,18 +30,23 @@ angular.module('probytes.charts', [])
       },
       horizontalBarChart: function(element, data, yAxisField) {
         var elementWidth       = $(element[0]).innerWidth(),
-            maxYAxisLabelWidth = charts.maxTextWidth(element, _(data).map(function(d) { return d[yAxisField] }), 'yaxis-label'),
-            margin             = {top: 30, right: 45, bottom: 22, left: maxYAxisLabelWidth + 10 },
+            maxYAxisLabelWidth = charts.maxTextWidth(element, data.map(function(d) { return d[yAxisField] }), 'yaxis-label'),
+            margin             = {top: 30, right: 48, bottom: 22, left: maxYAxisLabelWidth + 10 },
             rowHeight          = 30,
             width              = elementWidth - margin.left - margin.right,
             height             = data.length * rowHeight;
 
-        var x = d3.scale.linear()
-            .domain([0, d3.max(data, function(d) { return d.bytes / Math.pow(2, 30) })])
+        var xPrefixer1 = Prefix.binaryPrefixFactory(data.map(function(d) { return d.bytes; })),
+            xPrefix1   = xPrefixer1(1)[1],
+            xPrefixer2 = Prefix.decimalPrefixFactory(data.map(function(d) { return d.requests; })),
+            xPrefix2   = xPrefixer2(1)[1];
+
+        var x1 = d3.scale.linear()
+            .domain([0, d3.max(data, function(d) { return xPrefixer1(d.bytes)[0]; })])
             .range([0, width]);
 
         var x2 = d3.scale.linear()
-            .domain([0, d3.max(data, function(d) { return d.requests / 1000 })])
+            .domain([0, d3.max(data, function(d) { return xPrefixer2(d.requests)[0]; })])
             .range([0, width]);
 
         var y = d3.scale.ordinal()
@@ -49,8 +54,8 @@ angular.module('probytes.charts', [])
             // is done further down, when setting the y attributes to avoid anti-aliasing
             .rangeBands([0, height], .22);
 
-        var xAxis = d3.svg.axis()
-            .scale(x)
+        var xAxis1 = d3.svg.axis()
+            .scale(x1)
             .orient("top");
 
         var xAxis2 = d3.svg.axis()
@@ -75,9 +80,9 @@ angular.module('probytes.charts', [])
         // bars (bytes)
         bars.enter().append("rect")
             .attr("class", 'bar-bytes')
-            .attr("x", function(d) { return x(0); })
+            .attr("x", function(d) { return x1(0); })
             .attr("y", function(d) { return Math.round(y(d[yAxisField])); })
-            .attr("width", function(d) { return Math.abs(x(d.bytes / Math.pow(2, 30)) - x(0)); })
+            .attr("width", function(d) { return Math.abs(x1(xPrefixer1(d.bytes)[0]) - x1(0)); })
             .attr("height", Math.round(y.rangeBand()));
 
         // bars (requests)
@@ -89,13 +94,13 @@ angular.module('probytes.charts', [])
 
         requestBars.append('line')
             .attr('x1', function(d) { return x2(0); })
-            .attr('x2', function(d) { return x2(d.requests / 1000); })
+            .attr('x2', function(d) { return x2(xPrefixer2(d.requests)[0]); })
             .attr('y1', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight; })
             .attr('y2', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight; });
 
         requestBars.append('line')
-            .attr('x1', function(d) { return x2(d.requests / 1000); })
-            .attr('x2', function(d) { return x2(d.requests / 1000); })
+            .attr('x1', function(d) { return x2(xPrefixer2(d.requests)[0]); })
+            .attr('x2', function(d) { return x2(xPrefixer2(d.requests)[0]); })
             .attr('y1', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight - quarterBarHeight; })
             .attr('y2', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight + quarterBarHeight; });
 
@@ -111,13 +116,13 @@ angular.module('probytes.charts', [])
         // bytes scale (x1 axis)
         svg.append("g")
             .attr("class", "x axis")
-            .call(xAxis);
+            .call(xAxis1);
 
         svg.append("text")
             .attr("class", "x axis-label")
             .attr("x", width + 10)
             .attr("y", -9)
-            .text("[GiB]");
+            .text('[' + xPrefix1 + 'B]');
 
         // requests scale (x2 axis)
         svg.append("g")
@@ -129,14 +134,14 @@ angular.module('probytes.charts', [])
             .attr("class", "x axis-label")
             .attr("x", width + 10)
             .attr("y", height + 18)
-            .text("[kreq]");
+            .text('[' + xPrefix2 + 'req]');
 
         // y axis
         svg.append("g")
             .attr("class", "y axis")
           .append("line")
-            .attr("x1", x(0))
-            .attr("x2", x(0))
+            .attr("x1", x1(0))
+            .attr("x2", x1(0))
             .attr("y2", height);
 
         // tooltips
