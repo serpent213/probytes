@@ -33,6 +33,7 @@ class Traffic
     end
     update_frontend_static
     update_frontend_data
+    puts 'init done'
   end
 
   def increment_host(hostname, bytes, requests = 1)
@@ -179,10 +180,10 @@ opt_parser = OptionParser.new do |opt|
   opt.banner = "Usage: traffic.rb COMMAND [OPTIONS]"
   opt.separator  ""
   opt.separator  "Commands"
-  opt.separator  "     start: start monitor"
-  opt.separator  "     stop: stop monitor"
+  opt.separator  "     start:   start monitor"
+  opt.separator  "     stop:    stop monitor"
   opt.separator  "     restart: restart monitor"
-  opt.separator  "     mockup: fill DB with fake data"
+  opt.separator  "     mockup:  fill DB with fake data"
   opt.separator  ""
   opt.separator  "Options"
 
@@ -207,10 +208,16 @@ opt_parser.parse!
 
 case ARGV[0]
 when 'start'
-  if options[:playback]
-    exit(run_playback)
-  else
-    exit(run)
+  begin
+    if options[:playback]
+      exit(run_playback)
+    else
+      exit(run)
+    end
+  rescue Exception => e
+    puts "rescue: #{e}"
+    sleep 3
+    retry
   end
 when 'stop'
   puts 'stop'
