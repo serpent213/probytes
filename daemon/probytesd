@@ -1,7 +1,8 @@
-#!/usr/bin/env ruby19
+#!/usr/bin/env ruby
 
-# goodlog traffic monitor
+# proper:bytes traffic monitor
 
+require 'etc'
 require 'eventmachine'
 require 'eventmachine-tail'
 require 'fileutils'
@@ -9,15 +10,18 @@ require 'json'
 require 'optparse'
 require 'pg'
 
+CONFIG_FILE = '/usr/local/etc/probytesd.conf.rb'
+PID_FILE = '/var/run/probytesd.pid'
+
 class Traffic
   attr_reader :config
 
-  def initialize
+  def initialize(config_file)
     @host_traffic = {}
-    @config = eval(File.read('traffic.conf.rb'))
+    @config = eval(File.read(config_file || CONFIG_FILE))
     @frontend_dir = @config[:frontend_dir]
     @frontend_dir += '/' unless @frontend_dir.match(/\/$/)
-    puts "config: #{@config}"
+    STDERR.puts "config: #{@config}"
     @db = PG::Connection.open(@config[:postgresql])
     begin
       @db.exec('CREATE TABLE traffic (
@@ -33,7 +37,7 @@ class Traffic
     end
     update_frontend_static
     update_frontend_data
-    puts 'init done'
+    STDERR.puts 'init done'
   end
 
   def increment_host(hostname, bytes, requests = 1)
@@ -43,12 +47,12 @@ class Traffic
   end
 
   def update_stats(time = Time.now)
-    puts "update stats"
+    STDERR.puts "update stats"
     if not @host_traffic.empty?
       # time = Time.now
       month, year = time.month, time.year
       @host_traffic.keys.each do |hostname|
-        puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
+        STDERR.puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
         result = @db.exec_params('UPDATE traffic SET requests = requests + $1::int, bytes = bytes + $2::bigint ' +
                                  'WHERE hostname = $3 AND month = $4::int AND year = $5::int',
                                  [@host_traffic[hostname][:requests], @host_traffic[hostname][:bytes], hostname, month, year])
@@ -63,12 +67,12 @@ class Traffic
   end
 
   def update_frontend_static
-    puts "update frontend static"
+    STDERR.puts "update frontend static"
     FileUtils.cp_r(Dir['dist/*'], @frontend_dir)
   end
 
   def update_frontend_data
-    puts "update frontend data"
+    STDERR.puts "update frontend data"
     result = @db.exec('SELECT * FROM traffic')
     def string_to_int(r)
       {:hostname => r['hostname'],
@@ -125,107 +129,190 @@ end
 class Reader < EventMachine::FileTail
   def initialize(path, startpos=-1, traffic)
     super(path, startpos)
-    puts "Tailing #{path}"
+    STDERR.puts "Tailing #{path}"
     @buffer = BufferedTokenizer.new
     @traffic = traffic
   end
 
   def receive_data(data)
     @buffer.extract(data).each do |line|
-      puts "#{path}: #{line}"
+      STDERR.puts "#{path}: #{line}"
       if m = line.match(/^(?<hostname>\S+\.\S+) (?<request_bytes>\d+) (?<response_bytes>\d+)/)
         hostname = m['hostname']
         bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
-        puts "host: #{m["hostname"]} bytes: #{bytes_total}"
+        STDERR.puts "host: #{m["hostname"]} bytes: #{bytes_total}"
         @traffic.config[:hostname_mapping].each do |mapping|
           hostname.gsub!(mapping[0], mapping[1])
         end
-        puts "host after mapping: #{hostname}"
+        STDERR.puts "host after mapping: #{hostname}"
         if @traffic.config[:hostname_whitelist] and not @traffic.config[:hostname_whitelist].empty?
           hostname = 'unknown' unless @traffic.config[:hostname_whitelist].any? {|e| e.class == Regexp ? hostname.match(e) : hostname == e }
         end
-        puts "host after whitelisting: #{hostname}"
+        STDERR.puts "host after whitelisting: #{hostname}"
         @traffic.increment_host(hostname, bytes_total)
       else
-        puts "ignoring input: #{line}"
+        STDERR.puts "ignoring input: #{line}"
       end
     end
   end
 end
 
-def run
-  EM.run do
-    traffic = Traffic.new
-    traffic.config[:logfiles].each do |path|
-      EM::file_tail(path, Reader, traffic)
+class Daemon
+  def initialize(options)
+    @options = options
+  end
+
+  def get_pid
+    File.read(PID_FILE).to_i rescue nil
+  end
+
+  def write_pid(pid)
+    File.open(PID_FILE, 'w') {|f| f.puts pid }
+    FileUtils.chown(nil, @options[:group_id], PID_FILE) if @options[:group_id]
+    FileUtils.chown(@options[:user_id], nil, PID_FILE) if @options[:user_id]
+  end
+
+  def daemonise
+    if pid = get_pid
+      warn "probytesd appears to be running (PID #{pid})"
+      exit(-1)
     end
-    EM.add_periodic_timer(traffic.config[:update_interval]) do
-      traffic.update_stats
+
+    STDERR.puts "euid before daemonising: #{Process.euid}"
+    Process.daemon
+    pid = $$
+    STDERR.reopen('/tmp/probytesd.log')
+
+    begin
+      STDERR.puts "euid before writing pidfile: #{Process.euid}"
+      write_pid(pid)
+      # Process.detach(pid)
+    rescue => e
+      # Process.kill('TERM', pid)
+      warn "cannot write PID file: #{e.message}"
+      exit(2)
+    end
+
+    core
+  end
+
+  def core
+    STDERR.puts "euid before: #{Process.euid}"
+    if @options[:group_id]
+      gid = (Integer(@options[:group_id]) rescue nil) || Etc.getpwnam(@options[:group_id]).uid
+      Process::Sys.setgid(gid)
+    end
+
+    if @options[:user_id]
+      uid = (Integer(@options[:user_id]) rescue nil) || Etc.getpwnam(@options[:user_id]).uid
+      Process::Sys.setuid(uid)
+    end
+    STDERR.puts "euid after: #{Process.euid}"
+
+    begin
+      if @options[:playback]
+        run_playback
+        exit(0)
+      else
+        run
+        exit(0)
+      end
+    rescue => e
+      STDERR.puts "rescue: #{e.message}"
+      sleep 3
+      retry
+    end
+  end
+
+  alias_method :foreground, :core
+
+  def run
+    traffic = Traffic.new(@options[:config])
+    EM.run do
+      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
+      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+
+      traffic.config[:logfiles].each do |path|
+        EM::file_tail(path, Reader, traffic)
+      end
+      EM.add_periodic_timer(traffic.config[:update_interval]) do
+        traffic.update_stats
+      end
+      EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+    end
+  end
+
+  def run_playback
+    traffic = Traffic.new(@options[:config])
+    EM.run do
+      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
+      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+
+      EM.add_periodic_timer(traffic.config[:update_interval]) do
+        traffic.update_frontend_data
+      end
+      EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
     end
   end
 end
 
-def run_playback
-  EM.run do
-    traffic = Traffic.new
-    EM.add_periodic_timer(traffic.config[:update_interval]) do
-      traffic.update_frontend_data
-    end
-  end
-end
+# parse command line
 
 options = {}
 
 opt_parser = OptionParser.new do |opt|
-  opt.banner = "Usage: traffic.rb COMMAND [OPTIONS]"
-  opt.separator  ""
-  opt.separator  "Commands"
-  opt.separator  "     start:   start monitor"
-  opt.separator  "     stop:    stop monitor"
-  opt.separator  "     restart: restart monitor"
-  opt.separator  "     mockup:  fill DB with fake data"
-  opt.separator  ""
-  opt.separator  "Options"
+  opt.banner = 'Usage: probytesd [OPTIONS]'
+  opt.separator ''
+  opt.separator "Run the proper:bytes data collector daemon. PID will be written to #{PID_FILE}."
+  opt.separator ''
+  opt.separator 'Options'
 
-  # opt.on("-e", "--environment ENVIRONMENT", "which environment you want server run") do |environment|
-  #   options[:environment] = environment
-  # end
-
-  opt.on("-d", "--daemon", "run as daemon") do
-    options[:daemon] = true
+  opt.on('-c', '--config FILE', "configuration file name (defaults to #{CONFIG_FILE})") do |filename|
+    options[:config] = filename
   end
 
-  opt.on("-p", "--playback", "only export frontend and data, no input processing") do
+  opt.on('-f', '--foreground', 'do not daemonise, ignore PID file') do
+    options[:foreground] = true
+  end
+
+  opt.on('-g', '--group ID', 'group name/ID to run under') do |group|
+    options[:group_id] = group
+  end
+
+  opt.on('-h', '--help', 'help') do
+    puts opt_parser
+    exit(0)
+  end
+
+  opt.on('-m', '--mockup', 'fill DB with fake data, then exit') do
+    options[:mockup] = true
+  end
+
+  opt.on('-p', '--playback', 'only export frontend and data, no input processing') do
     options[:playback] = true
   end
 
-  opt.on("-h", "--help", "help") do
-    puts opt_parser
+  opt.on('-u', '--user ID', 'user name/ID to run under') do |user|
+    options[:user_id] = user
   end
 end
 
 opt_parser.parse!
 
-case ARGV[0]
-when 'start'
-  begin
-    if options[:playback]
-      exit(run_playback)
-    else
-      exit(run)
-    end
-  rescue Exception => e
-    puts "rescue: #{e}"
-    sleep 3
-    retry
-  end
-when 'stop'
-  puts 'stop'
-when 'restart'
-  puts 'restart'
-when 'mockup'
-  traffic = Traffic.new
+STDERR.puts options
+
+if options[:mockup]
+  traffic = Traffic.new(options[:config])
   traffic.mockup
+  exit(0)
+end
+
+STDERR.puts "euid at start: #{Process.euid}"
+
+daemon = Daemon.new(options)
+
+if options[:foreground]
+  daemon.foreground
 else
-  puts opt_parser
+  daemon.daemonise
 end

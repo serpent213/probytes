@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# proper:bytes traffic monitor
+
+# PROVIDE: probytesd
+# REQUIRE: DAEMON LOGIN cleanvar
+# KEYWORD: shutdown
+
+# Add the following line to /etc/rc.conf to enable probytesd:
+#
+#  probytesd_enable="YES"
+#  # optional
+#  probytesd_xuser="www"
+#  probytesd_xgroup="www"
+
+. /etc/rc.subr
+
+# defaults
+probytesd_enable=${probytesd_enable:-"NO"}
+probytesd_xuser=${probytesd_xuser:-"www"}
+probytesd_xgroup=${probytesd_xgroup:-"www"}
+
+name=probytesd
+rcvar=probytesd_enable
+
+command="/usr/local/bin/${name}"
+command_args="-u ${probytesd_xuser} -g ${probytesd_xgroup}"
+command_interpreter="ruby"
+
+pidfile="/var/run/${name}.pid"
+required_files="/usr/local/etc/${name}.conf.rb"
+
+load_rc_config $name
+run_rc_command "$1"
