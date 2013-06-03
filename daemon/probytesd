@@ -47,7 +47,10 @@ class Traffic
     @config = eval(File.read(config_file || CONFIG_FILE))
     @frontend_dir = @config[:frontend_dir]
     @frontend_dir += '/' unless @frontend_dir.match(/\/$/)
-    STDERR.puts "config: #{@config}"
+    update_frontend_static
+  end
+
+  def open_db
     @db = PG::Connection.open(@config[:postgresql])
     begin
       @db.exec('CREATE TABLE traffic (
@@ -61,9 +64,6 @@ class Traffic
     rescue PG::Error => e
       # table does exist
     end
-    update_frontend_static
-    update_frontend_data
-    STDERR.puts 'init done'
   end
 
   def increment_host(hostname, bytes, requests = 1)
@@ -189,29 +189,31 @@ class Daemon
   end
 
   def run
-    traffic = Traffic.new(@options[:config])
+    @traffic.open_db
+    @traffic.update_frontend_data
     EM.run do
       Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
       Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
 
-      traffic.config[:logfiles].each do |path|
-        EM::file_tail(path, Reader, traffic)
+      @traffic.config[:logfiles].each do |path|
+        EM::file_tail(path, Reader, @traffic)
       end
-      EM.add_periodic_timer(traffic.config[:update_interval]) do
-        traffic.update_stats
+      EM.add_periodic_timer(@traffic.config[:update_interval]) do
+        @traffic.update_stats
       end
       # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
     end
   end
 
   def run_playback
-    traffic = Traffic.new(@options[:config])
+    @traffic.open_db
+    @traffic.update_frontend_data
     EM.run do
       Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
       Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
 
-      EM.add_periodic_timer(traffic.config[:update_interval]) do
-        traffic.update_frontend_data
+      EM.add_periodic_timer(@traffic.config[:update_interval]) do
+        @traffic.update_frontend_data
       end
       # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
     end
@@ -230,14 +232,15 @@ class Daemon
     end
     STDERR.puts "euid after: #{Process.euid}"
 
+    @traffic = Traffic.new(@options[:config_file])
+
     begin
       if @options[:playback]
         run_playback
-        exit(0)
       else
         run
-        exit(0)
       end
+      exit(0)
     rescue => e
       STDERR.puts "recovery: #{e.message}"
       sleep 5
@@ -302,7 +305,7 @@ opt_parser = OptionParser.new do |opt|
   opt.separator 'Options'
 
   opt.on('-c', '--config FILE', "configuration file name (defaults to #{CONFIG_FILE})") do |filename|
-    options[:config] = filename
+    options[:config_file] = filename
   end
 
   opt.on('-f', '--foreground', 'do not daemonise, ignore PID file, log to STDERR instead of syslog') do
@@ -336,8 +339,10 @@ opt_parser.parse!
 Logger.target = options[:foreground] ? :stderr : :syslog
 
 if options[:mockup]
-  traffic = Traffic.new(options[:config])
+  traffic = Traffic.new(options[:config_file])
+  traffic.open_db
   traffic.mockup
+  traffic.update_frontend_data
   exit(0)
 end
 
