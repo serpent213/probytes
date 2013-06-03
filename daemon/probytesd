@@ -219,7 +219,7 @@ class Daemon
     end
   end
 
-  def core
+  def worker
     STDERR.puts "euid before: #{Process.euid}"
     if @options[:group_id]
       gid = (Integer(@options[:group_id]) rescue nil) || Etc.getpwnam(@options[:group_id]).uid
@@ -248,7 +248,7 @@ class Daemon
     end
   end
 
-  alias_method :foreground, :core
+  alias_method :foreground, :worker
 
   def get_pid
     File.read(PID_FILE).to_i rescue nil
@@ -269,6 +269,8 @@ class Daemon
     STDERR.puts "euid before daemonising: #{Process.euid}"
     Process.daemon
     child_pid = fork do
+      # worker process
+
       pid = $$
       STDERR.reopen('/tmp/probytesd.log')
 
@@ -282,8 +284,10 @@ class Daemon
         exit(2)
       end
 
-      core
+      worker
     end
+
+    # supervisor process
 
     STDERR.reopen('/tmp/probytesd2.log')
     STDERR.puts('waiting for child')
