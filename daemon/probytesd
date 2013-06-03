@@ -16,10 +16,12 @@ PID_FILE = '/var/run/probytesd.pid'
 
 class Logger
   class << self
+    attr_accessor :debug
     attr_accessor :target
 
     def method_missing(method, *args)
       if [:crit, :emerg, :alert, :err, :warning, :notice, :info, :debug].include?(method)
+        return false if method == :debug && !debug
         message, *params = *args
         message.gsub!(/[\n\r]/, ' ')
         if target == :syslog
@@ -35,7 +37,8 @@ class Logger
     end
   end
 
-  # default
+  # defaults
+  self.debug  = false
   self.target = :syslog
 end
 
@@ -299,6 +302,10 @@ opt_parser = OptionParser.new do |opt|
     options[:config_file] = filename
   end
 
+  opt.on('-d', '--debug', 'enable debug logging') do
+    options[:debug] = true
+  end
+
   opt.on('-f', '--foreground', 'do not daemonise, ignore PID file, log to STDERR instead of syslog') do
     options[:foreground] = true
   end
@@ -328,6 +335,7 @@ end
 opt_parser.parse!
 
 Logger.target = options[:foreground] ? :stderr : :syslog
+Logger.debug = !!options[:debug]
 
 if options[:mockup]
   traffic = Traffic.new(options[:config_file])
