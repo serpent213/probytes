@@ -9,9 +9,34 @@ require 'fileutils'
 require 'json'
 require 'optparse'
 require 'pg'
+require 'syslog'
 
 CONFIG_FILE = '/usr/local/etc/probytesd.conf.rb'
 PID_FILE = '/var/run/probytesd.pid'
+
+class Logger
+  class << self
+    attr_accessor :target
+
+    def method_missing(method, *args)
+      if [:crit, :emerg, :alert, :err, :warning, :notice, :info, :debug].include?(method)
+        if target == :syslog
+          Syslog.open('probytesd', 0, Syslog::LOG_DAEMON) unless Syslog.opened?
+          Syslog.send(method, *args)
+        else
+          message, *params = *args
+          STDERR.puts(Time.new.to_s + ': ' + (message % params))
+        end
+        true
+      else
+        super
+      end
+    end
+  end
+
+  # default
+  self.target = :syslog
+end
 
 class Traffic
   attr_reader :config
@@ -279,7 +304,7 @@ opt_parser = OptionParser.new do |opt|
     options[:config] = filename
   end
 
-  opt.on('-f', '--foreground', 'do not daemonise, ignore PID file') do
+  opt.on('-f', '--foreground', 'do not daemonise, ignore PID file, log to STDERR instead of syslog') do
     options[:foreground] = true
   end
 
