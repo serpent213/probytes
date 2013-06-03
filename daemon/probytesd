@@ -26,7 +26,7 @@ class Logger
           Syslog.open('probytesd', 0, Syslog::LOG_DAEMON) unless Syslog.opened?
           Syslog.send(method, message, *params)
         else
-          STDERR.puts(Time.new.to_s + ': ' + (message % params))
+          STDERR.puts(method.to_s.upcase.ljust(8) + Time.new.to_s + ': ' + (message % params))
         end
         true
       else
@@ -73,12 +73,10 @@ class Traffic
   end
 
   def update_stats(time = Time.now)
-    STDERR.puts "update stats"
     if not @host_traffic.empty?
       # time = Time.now
       month, year = time.month, time.year
       @host_traffic.keys.each do |hostname|
-        STDERR.puts "#{hostname}: #{@host_traffic[hostname][:requests]} reqs / #{@host_traffic[hostname][:bytes]} bytes"
         result = @db.exec_params('UPDATE traffic SET requests = requests + $1::int, bytes = bytes + $2::bigint ' +
                                  'WHERE hostname = $3 AND month = $4::int AND year = $5::int',
                                  [@host_traffic[hostname][:requests], @host_traffic[hostname][:bytes], hostname, month, year])
@@ -93,12 +91,10 @@ class Traffic
   end
 
   def update_frontend_static
-    STDERR.puts "update frontend static"
     FileUtils.cp_r(Dir['dist/*'], @frontend_dir)
   end
 
   def update_frontend_data
-    STDERR.puts "update frontend data"
     result = @db.exec('SELECT * FROM traffic')
     def string_to_int(r)
       {:hostname => r['hostname'],
@@ -155,29 +151,30 @@ end
 class Reader < EventMachine::FileTail
   def initialize(path, startpos=-1, traffic)
     super(path, startpos)
-    STDERR.puts "Tailing #{path}"
+    Logger.info("watching #{path}")
     @buffer = BufferedTokenizer.new
     @traffic = traffic
   end
 
   def receive_data(data)
     @buffer.extract(data).each do |line|
-      STDERR.puts "#{path}: #{line}"
       if m = line.match(/^(?<hostname>\S+\.\S+) (?<request_bytes>\d+) (?<response_bytes>\d+)/)
         hostname = m['hostname']
         bytes_total = m['request_bytes'].to_i + m['response_bytes'].to_i
-        STDERR.puts "host: #{m["hostname"]} bytes: #{bytes_total}"
-        @traffic.config[:hostname_mapping].each do |mapping|
-          hostname.gsub!(mapping[0], mapping[1])
+        Logger.debug("logfile input: hostname: #{hostname}, bytes: #{bytes_total}")
+        if @traffic.config[:hostname_mapping] and not @traffic.config[:hostname_mapping].empty?
+          @traffic.config[:hostname_mapping].each do |mapping|
+            hostname.gsub!(mapping[0], mapping[1])
+          end
+          Logger.debug("hostname after mapping: #{hostname}")
         end
-        STDERR.puts "host after mapping: #{hostname}"
         if @traffic.config[:hostname_whitelist] and not @traffic.config[:hostname_whitelist].empty?
           hostname = 'unknown' unless @traffic.config[:hostname_whitelist].any? {|e| e.class == Regexp ? hostname.match(e) : hostname == e }
+          Logger.debug("hostname after whitelisting: #{hostname}")
         end
-        STDERR.puts "host after whitelisting: #{hostname}"
         @traffic.increment_host(hostname, bytes_total)
       else
-        STDERR.puts "ignoring input: #{line}"
+        Logger.info("ignoring input: #{line}")
       end
     end
   end
@@ -192,8 +189,8 @@ class Daemon
     @traffic.open_db
     @traffic.update_frontend_data
     EM.run do
-      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
-      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+      Signal.trap('INT')  { EM.stop }
+      Signal.trap('TERM') { EM.stop }
 
       @traffic.config[:logfiles].each do |path|
         EM::file_tail(path, Reader, @traffic)
@@ -202,6 +199,8 @@ class Daemon
         @traffic.update_stats
       end
       # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+
+      Logger.info('waiting for logfile input')
     end
   end
 
@@ -209,18 +208,21 @@ class Daemon
     @traffic.open_db
     @traffic.update_frontend_data
     EM.run do
-      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
-      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+      Signal.trap('INT')  { EM.stop }
+      Signal.trap('TERM') { EM.stop }
 
       EM.add_periodic_timer(@traffic.config[:update_interval]) do
         @traffic.update_frontend_data
       end
       # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+
+      Logger.info("polling database every #{@traffic.config[:update_interval]} s")
     end
   end
 
   def worker
-    STDERR.puts "euid before: #{Process.euid}"
+    Logger.info('proper:bytes probytesd initialising')
+
     if @options[:group_id]
       gid = (Integer(@options[:group_id]) rescue nil) || Etc.getpwnam(@options[:group_id]).uid
       Process::Sys.setgid(gid)
@@ -230,7 +232,6 @@ class Daemon
       uid = (Integer(@options[:user_id]) rescue nil) || Etc.getpwnam(@options[:user_id]).uid
       Process::Sys.setuid(uid)
     end
-    STDERR.puts "euid after: #{Process.euid}"
 
     @traffic = Traffic.new(@options[:config_file])
 
@@ -242,7 +243,7 @@ class Daemon
       end
       exit(0)
     rescue => e
-      STDERR.puts "recovery: #{e.message}"
+      Logger.warning("recovery: #{e.message}")
       sleep 5
       retry
     end
@@ -255,32 +256,24 @@ class Daemon
   end
 
   def write_pid(pid)
-    File.open(PID_FILE, 'w') {|f| f.puts pid }
-    # FileUtils.chown(nil, @options[:group_id], PID_FILE) if @options[:group_id]
-    # FileUtils.chown(@options[:user_id], nil, PID_FILE) if @options[:user_id]
+    File.open(PID_FILE, 'w') {|f| f.puts(pid) }
   end
 
   def daemonise
     if pid = get_pid
-      warn "probytesd appears to be running (PID #{pid}) -- remove #{PID_FILE} if it is not"
+      Logger.err("probytesd appears to be running (PID #{pid}) -- remove #{PID_FILE} if it is not")
       exit(-1)
     end
 
-    STDERR.puts "euid before daemonising: #{Process.euid}"
     Process.daemon
     child_pid = fork do
       # worker process
 
       pid = $$
-      STDERR.reopen('/tmp/probytesd.log')
-
       begin
-        STDERR.puts "euid before writing pidfile: #{Process.euid}"
         write_pid(pid)
-        # Process.detach(pid)
       rescue => e
-        # Process.kill('TERM', pid)
-        warn "cannot write PID file: #{e.message}"
+        Logger.err("cannot write PID file: #{e.message}, startup aborted")
         exit(2)
       end
 
@@ -289,10 +282,7 @@ class Daemon
 
     # supervisor process
 
-    STDERR.reopen('/tmp/probytesd2.log')
-    STDERR.puts('waiting for child')
     Process.wait(child_pid)
-    STDERR.puts('removing PID file')
     File.delete(PID_FILE)
   end
 end
@@ -321,7 +311,7 @@ opt_parser = OptionParser.new do |opt|
   end
 
   opt.on('-h', '--help', 'help') do
-    puts opt_parser
+    puts(opt_parser)
     exit(0)
   end
 
@@ -349,8 +339,6 @@ if options[:mockup]
   traffic.update_frontend_data
   exit(0)
 end
-
-STDERR.puts "euid at start: #{Process.euid}"
 
 daemon = Daemon.new(options)
 
