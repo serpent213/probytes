@@ -16,12 +16,12 @@ PID_FILE = '/var/run/probytesd.pid'
 
 class Logger
   class << self
-    attr_accessor :debug
+    attr_accessor :debug_output
     attr_accessor :target
 
     def method_missing(method, *args)
       if [:crit, :emerg, :alert, :err, :warning, :notice, :info, :debug].include?(method)
-        return false if method == :debug && !debug
+        return false if method == :debug && !debug_output
         message, *params = *args
         message.gsub!(/[\n\r]/, ' ')
         if target == :syslog
@@ -38,8 +38,8 @@ class Logger
   end
 
   # defaults
-  self.debug  = false
-  self.target = :syslog
+  self.debug_output = false
+  self.target       = :syslog
 end
 
 class Traffic
@@ -198,7 +198,7 @@ class Daemon
       EM.add_periodic_timer(@traffic.config[:update_interval]) do
         @traffic.update_stats
       end
-      EM.add_shutdown_hook { Logger.info('clean shutdown') }
+      EM.add_shutdown_hook { Logger.info('reactor shutdown') }
 
       Logger.info('waiting for logfile input')
     end
@@ -211,7 +211,7 @@ class Daemon
       EM.add_periodic_timer(@traffic.config[:update_interval]) do
         @traffic.update_frontend_data
       end
-      EM.add_shutdown_hook { Logger.info('clean shutdown') }
+      EM.add_shutdown_hook { Logger.info('reactor shutdown') }
 
       Logger.info("polling database every #{@traffic.config[:update_interval]} s")
     end
@@ -243,7 +243,13 @@ class Daemon
       end
       exit(0)
     rescue => e
-      Logger.warning("recovery: #{e.message}")
+      if @options[:debug]
+        crashlog = '/tmp/probytesd.debug.log'
+        File.open(crashlog, 'a') {|f| f.puts(e.backtrace.join("\n") + "\n---\n") }
+        Logger.warning("recovery: #{e.message} (see #{crashlog} for backtrace)")
+      else
+        Logger.warning("recovery: #{e.message}")
+      end
       sleep 5
       retry
     end
@@ -335,7 +341,7 @@ end
 opt_parser.parse!
 
 Logger.target = options[:foreground] ? :stderr : :syslog
-Logger.debug = !!options[:debug]
+Logger.debug_output = !!options[:debug]
 
 if options[:mockup]
   traffic = Traffic.new(options[:config_file])
