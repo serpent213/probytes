@@ -20,11 +20,12 @@ class Logger
 
     def method_missing(method, *args)
       if [:crit, :emerg, :alert, :err, :warning, :notice, :info, :debug].include?(method)
+        message, *params = *args
+        message.gsub!(/[\n\r]/, ' ')
         if target == :syslog
           Syslog.open('probytesd', 0, Syslog::LOG_DAEMON) unless Syslog.opened?
-          Syslog.send(method, *args)
+          Syslog.send(method, message, *params)
         else
-          message, *params = *args
           STDERR.puts(Time.new.to_s + ': ' + (message % params))
         end
         true
@@ -332,7 +333,7 @@ end
 
 opt_parser.parse!
 
-STDERR.puts options
+Logger.target = options[:foreground] ? :stderr : :syslog
 
 if options[:mockup]
   traffic = Traffic.new(options[:config])
