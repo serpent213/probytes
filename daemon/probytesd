@@ -162,6 +162,65 @@ class Daemon
     @options = options
   end
 
+  def run
+    traffic = Traffic.new(@options[:config])
+    EM.run do
+      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
+      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+
+      traffic.config[:logfiles].each do |path|
+        EM::file_tail(path, Reader, traffic)
+      end
+      EM.add_periodic_timer(traffic.config[:update_interval]) do
+        traffic.update_stats
+      end
+      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+    end
+  end
+
+  def run_playback
+    traffic = Traffic.new(@options[:config])
+    EM.run do
+      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
+      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
+
+      EM.add_periodic_timer(traffic.config[:update_interval]) do
+        traffic.update_frontend_data
+      end
+      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+    end
+  end
+
+  def core
+    STDERR.puts "euid before: #{Process.euid}"
+    if @options[:group_id]
+      gid = (Integer(@options[:group_id]) rescue nil) || Etc.getpwnam(@options[:group_id]).uid
+      Process::Sys.setgid(gid)
+    end
+
+    if @options[:user_id]
+      uid = (Integer(@options[:user_id]) rescue nil) || Etc.getpwnam(@options[:user_id]).uid
+      Process::Sys.setuid(uid)
+    end
+    STDERR.puts "euid after: #{Process.euid}"
+
+    begin
+      if @options[:playback]
+        run_playback
+        exit(0)
+      else
+        run
+        exit(0)
+      end
+    rescue => e
+      STDERR.puts "recovery: #{e.message}"
+      sleep 5
+      retry
+    end
+  end
+
+  alias_method :foreground, :core
+
   def get_pid
     File.read(PID_FILE).to_i rescue nil
   end
@@ -202,65 +261,6 @@ class Daemon
     Process.wait(child_pid)
     STDERR.puts('removing PID file')
     File.delete(PID_FILE)
-  end
-
-  def core
-    STDERR.puts "euid before: #{Process.euid}"
-    if @options[:group_id]
-      gid = (Integer(@options[:group_id]) rescue nil) || Etc.getpwnam(@options[:group_id]).uid
-      Process::Sys.setgid(gid)
-    end
-
-    if @options[:user_id]
-      uid = (Integer(@options[:user_id]) rescue nil) || Etc.getpwnam(@options[:user_id]).uid
-      Process::Sys.setuid(uid)
-    end
-    STDERR.puts "euid after: #{Process.euid}"
-
-    begin
-      if @options[:playback]
-        run_playback
-        exit(0)
-      else
-        run
-        exit(0)
-      end
-    rescue => e
-      STDERR.puts "rescue: #{e.message}"
-      sleep 3
-      retry
-    end
-  end
-
-  alias_method :foreground, :core
-
-  def run
-    traffic = Traffic.new(@options[:config])
-    EM.run do
-      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
-      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
-
-      traffic.config[:logfiles].each do |path|
-        EM::file_tail(path, Reader, traffic)
-      end
-      EM.add_periodic_timer(traffic.config[:update_interval]) do
-        traffic.update_stats
-      end
-      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
-    end
-  end
-
-  def run_playback
-    traffic = Traffic.new(@options[:config])
-    EM.run do
-      Signal.trap('INT')  { STDERR.puts 'trap int'; EM.stop }
-      Signal.trap('TERM') { STDERR.puts 'trap term'; EM.stop }
-
-      EM.add_periodic_timer(traffic.config[:update_interval]) do
-        traffic.update_frontend_data
-      end
-      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
-    end
   end
 end
 
