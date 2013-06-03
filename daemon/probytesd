@@ -189,16 +189,13 @@ class Daemon
     @traffic.open_db
     @traffic.update_frontend_data
     EM.run do
-      Signal.trap('INT')  { EM.stop }
-      Signal.trap('TERM') { EM.stop }
-
       @traffic.config[:logfiles].each do |path|
         EM::file_tail(path, Reader, @traffic)
       end
       EM.add_periodic_timer(@traffic.config[:update_interval]) do
         @traffic.update_stats
       end
-      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+      EM.add_shutdown_hook { Logger.info('clean shutdown') }
 
       Logger.info('waiting for logfile input')
     end
@@ -208,13 +205,10 @@ class Daemon
     @traffic.open_db
     @traffic.update_frontend_data
     EM.run do
-      Signal.trap('INT')  { EM.stop }
-      Signal.trap('TERM') { EM.stop }
-
       EM.add_periodic_timer(@traffic.config[:update_interval]) do
         @traffic.update_frontend_data
       end
-      # EM.add_shutdown_hook { File.delete(PID_FILE) if not @options[:foreground] }
+      EM.add_shutdown_hook { Logger.info('clean shutdown') }
 
       Logger.info("polling database every #{@traffic.config[:update_interval]} s")
     end
@@ -234,6 +228,9 @@ class Daemon
     end
 
     @traffic = Traffic.new(@options[:config_file])
+
+    Signal.trap(:INT)  { EM.stop }
+    Signal.trap(:TERM) { EM.stop }
 
     begin
       if @options[:playback]
