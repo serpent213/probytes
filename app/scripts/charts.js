@@ -6,7 +6,7 @@ angular.module('probytes.charts', ['probytes.filters'])
   .factory('Charts', function($filter, Prefix) {
     var charts = {
       maxTextWidth: function(element, strings, classname) {
-        var svg = d3.select(element[0]).append("svg")
+        var svg = d3.select(element[0]).append('svg')
             .attr('width', 0)
             .attr('height', 0);
 
@@ -30,7 +30,7 @@ angular.module('probytes.charts', ['probytes.filters'])
       },
       horizontalBarChart: function(element, data, yAxisField) {
         var elementWidth       = $(element[0]).innerWidth(),
-            maxYAxisLabelWidth = charts.maxTextWidth(element, data.map(function(d) { return d[yAxisField] }), 'yaxis-label'),
+            maxYAxisLabelWidth = charts.maxTextWidth(element, data.map(function(d) { return d[yAxisField]; }), 'yaxis-label'),
             margin             = {top: 30, right: 48, bottom: 22, left: maxYAxisLabelWidth + 10 },
             rowHeight          = 30,
             width              = elementWidth - margin.left - margin.right,
@@ -52,38 +52,38 @@ angular.module('probytes.charts', ['probytes.filters'])
         var y = d3.scale.ordinal()
             // rangeRoundBands does produce a top margin sometimes, so rounding
             // is done further down, when setting the y attributes to avoid anti-aliasing
-            .rangeBands([0, height], .22);
+            .rangeBands([0, height], 0.22);
 
         var xAxis1 = d3.svg.axis()
             .scale(x1)
-            .orient("top");
+            .orient('top');
 
         var xAxis2 = d3.svg.axis()
             .scale(x2)
-            .orient("bottom");
+            .orient('bottom');
 
-        var yAxis = d3.svg.axis()
-            .orient("left");
+        // var yAxis = d3.svg.axis()
+        //     .orient('left');
 
         d3.select(element[0]).html('');
-        var svg = d3.select(element[0]).append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var svg = d3.select(element[0]).append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
         y.domain(data.map(function(d) { return d[yAxisField]; }));
 
-        var bars = svg.selectAll(".bar")
+        var bars = svg.selectAll('.bar')
           .data(data);
 
         // bars (bytes)
-        bars.enter().append("rect")
-            .attr("class", 'bar-bytes')
-            .attr("x", function(d) { return x1(0); })
-            .attr("y", function(d) { return Math.round(y(d[yAxisField])); })
-            .attr("width", function(d) { return Math.abs(x1(xPrefixer1(d.bytes)[0]) - x1(0)); })
-            .attr("height", Math.round(y.rangeBand()));
+        bars.enter().append('rect')
+            .attr('class', 'bar-bytes')
+            .attr('x', function() { return x1(0); })
+            .attr('y', function(d) { return Math.round(y(d[yAxisField])); })
+            .attr('width', function(d) { return Math.abs(x1(xPrefixer1(d.bytes)[0]) - x1(0)); })
+            .attr('height', Math.round(y.rangeBand()));
 
         // bars (requests)
         var halfBarHeight = Math.round(y.rangeBand() / 2);
@@ -93,7 +93,7 @@ angular.module('probytes.charts', ['probytes.filters'])
             .attr('class', 'bar-req');
 
         requestBars.append('line')
-            .attr('x1', function(d) { return x2(0); })
+            .attr('x1', function() { return x2(0); })
             .attr('x2', function(d) { return x2(xPrefixer2(d.requests)[0]); })
             .attr('y1', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight; })
             .attr('y2', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight; });
@@ -105,72 +105,73 @@ angular.module('probytes.charts', ['probytes.filters'])
             .attr('y2', function(d) { return Math.round(y(d[yAxisField])) + halfBarHeight + quarterBarHeight; });
 
         // y axis
-        bars.enter().append("text")
-            .attr("class", "yaxis-label")
-            .attr("x", -10)
-            .attr("y", function(d) { return Math.round(y(d[yAxisField])); })
-            .attr("dy", "1.15em")
-            .attr("text-anchor", "end")
+        bars.enter().append('text')
+            .attr('class', 'yaxis-label')
+            .attr('x', -10)
+            .attr('y', function(d) { return Math.round(y(d[yAxisField])); })
+            .attr('dy', '1.15em')
+            .attr('text-anchor', 'end')
             .text(function(d) { return d[yAxisField]; });
 
         // bytes scale (x1 axis)
-        svg.append("g")
-            .attr("class", "x axis")
+        svg.append('g')
+            .attr('class', 'x axis')
             .call(xAxis1);
 
-        svg.append("text")
-            .attr("class", "x axis-label")
-            .attr("x", width + 10)
-            .attr("y", -9)
+        svg.append('text')
+            .attr('class', 'x axis-label')
+            .attr('x', width + 10)
+            .attr('y', -9)
             .text('[' + xPrefix1 + 'B]');
 
         // requests scale (x2 axis)
-        svg.append("g")
-            .attr("class", "x axis")
+        svg.append('g')
+            .attr('class', 'x axis')
             .attr('transform', 'translate(0, ' + (height - 0) + ')')
             .call(xAxis2);
 
-        svg.append("text")
-            .attr("class", "x axis-label")
-            .attr("x", width + 10)
-            .attr("y", height + 18)
+        svg.append('text')
+            .attr('class', 'x axis-label')
+            .attr('x', width + 10)
+            .attr('y', height + 18)
             .text('[' + xPrefix2 + 'req]');
 
         // y axis
-        svg.append("g")
-            .attr("class", "y axis")
-          .append("line")
-            .attr("x1", x1(0))
-            .attr("x2", x1(0))
-            .attr("y2", height);
+        svg.append('g')
+            .attr('class', 'y axis')
+          .append('line')
+            .attr('x1', x1(0))
+            .attr('x2', x1(0))
+            .attr('y2', height);
 
         // tooltips
         var rows = data.length;
         var rowBarBytes = $('.bar-bytes', element);
         var rowYAxisLabels = $('.yaxis-label', element);
-        for (var i = 0; i < rows; i++) {
-          (function(row) {
-            function showTooltip() {
-              // recreate tooltip before showing
-              // otherwise show/hide alternation ends up in the wrong state when switching too fast
-              $(rowBarBytes[row]).tooltip(
-                {title: charts.tooltipContent(data[row], yAxisField),
-                 html: true,
-                 trigger: 'manual',
-                 container: 'body'});
-              $(rowBarBytes[row]).tooltip('show');
-            }
 
-            function hideTooltip() {
-              $(rowBarBytes[row]).tooltip('destroy');
-            }
+        function initTooltip(row) {
+          function showTooltip() {
+            // recreate tooltip before showing
+            // otherwise show/hide alternation ends up in the wrong state when switching too fast
+            $(rowBarBytes[row]).tooltip(
+              {title: charts.tooltipContent(data[row], yAxisField),
+               html: true,
+               trigger: 'manual',
+               container: 'body'});
+            $(rowBarBytes[row]).tooltip('show');
+          }
 
-            $(rowBarBytes[row]).mouseover(showTooltip);
-            $(rowBarBytes[row]).mouseout(hideTooltip);
-            $(rowYAxisLabels[row]).mouseover(showTooltip);
-            $(rowYAxisLabels[row]).mouseout(hideTooltip);
-          })(i);
+          function hideTooltip() {
+            $(rowBarBytes[row]).tooltip('destroy');
+          }
+
+          $(rowBarBytes[row]).mouseover(showTooltip);
+          $(rowBarBytes[row]).mouseout(hideTooltip);
+          $(rowYAxisLabels[row]).mouseover(showTooltip);
+          $(rowYAxisLabels[row]).mouseout(hideTooltip);
         }
+
+        for (var i = 0; i < rows; i++) { initTooltip(i); }
 
         $('.container').click(function() { $('.tooltip').remove(); });
       },
@@ -185,7 +186,7 @@ angular.module('probytes.charts', ['probytes.filters'])
             radius          = Math.min(width, chartHeight) / 2;
 
         var color = d3.scale.ordinal()
-            .range(["#a05d56", "#d0743c", "#ff8c00", "#98abc5", "#8a89a6", "#7b6888", "#6b486b"]);
+            .range(['#a05d56', '#d0743c', '#ff8c00', '#98abc5', '#8a89a6', '#7b6888', '#6b486b']);
 
         var arc = d3.svg.arc()
             .outerRadius(radius - 10)
@@ -196,34 +197,34 @@ angular.module('probytes.charts', ['probytes.filters'])
             .value(function(d) { return d.bytes; });
 
         d3.select(element[0]).html('');
-        var svg = d3.select(element[0]).append("svg")
-            .attr("width", width)
-            .attr("height", chartHeight + legendHeight - 10);
+        var svg = d3.select(element[0]).append('svg')
+            .attr('width', width)
+            .attr('height', chartHeight + legendHeight - 10);
 
-        var chart = svg.append("g")
-            .attr("transform", "translate(" + width / 2 + "," + chartHeight / 2 + ")");
+        var chart = svg.append('g')
+            .attr('transform', 'translate(' + width / 2 + ',' + chartHeight / 2 + ')');
 
-        var arcs = chart.selectAll(".arc")
+        var arcs = chart.selectAll('.arc')
             .data(pie(data));
 
-        arcs.enter().append("g")
-            .attr("class", "arc")
-          .append("path")
-            .attr("d", arc)
-            .style("fill", function(d) { return color(d.data.hostname); })
-            .style("stroke", "#eee");
+        arcs.enter().append('g')
+            .attr('class', 'arc')
+          .append('path')
+            .attr('d', arc)
+            .style('fill', function(d) { return color(d.data.hostname); })
+            .style('stroke', '#eee');
 
-        arcs.enter().append("g")
-            .attr("class", "arc")
-          .append("text")
+        arcs.enter().append('g')
+            .attr('class', 'arc')
+          .append('text')
             .attr('class', 'percentage')
-            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-            .attr("dy", ".45em")
-            .style("text-anchor", "middle")
+            .attr('transform', function(d) { return 'translate(' + arc.centroid(d) + ')'; })
+            .attr('dy', '.45em')
+            .style('text-anchor', 'middle')
             .text(function(d) { return d.data.percent + '%'; });
 
         // legend
-        var legend = svg.append("g")
+        var legend = svg.append('g')
             .attr('transform', 'translate(10, ' + (chartHeight + legendTopMargin) + ')');
 
         var legendRows = legend.selectAll('.legendRow')
@@ -234,7 +235,7 @@ angular.module('probytes.charts', ['probytes.filters'])
             .attr('width', legendBoxSize)
             .attr('height', legendBoxSize)
             .attr('y', function(d, i) { return i * legendRowHeight; })
-            .style("fill", function(d) { return color(d.data.hostname); });
+            .style('fill', function(d) { return color(d.data.hostname); });
 
         legendRows.enter()
             .append('text')
@@ -247,27 +248,28 @@ angular.module('probytes.charts', ['probytes.filters'])
         var rows = data.length;
         var rowPieWedges = $('.arc', element);
         var rowPercentages = $('.percentage', element);
-        for (var i = 0; i < rows; i++) {
-          (function(row) {
-            function showTooltip() {
-              // recreate tooltip before showing
-              // otherwise show/hide alternation ends up in the wrong state when switching too fast
-              $(rowPercentages[row]).tooltip(
-                {title: charts.tooltipContent(data[row], 'hostname'),
-                 html: true,
-                 trigger: 'manual',
-                 container: 'body'});
-              $(rowPercentages[row]).tooltip('show');
-            }
 
-            function hideTooltip() {
-              $(rowPercentages[row]).tooltip('destroy');
-            }
+        function initTooltip(row) {
+          function showTooltip() {
+            // recreate tooltip before showing
+            // otherwise show/hide alternation ends up in the wrong state when switching too fast
+            $(rowPercentages[row]).tooltip(
+              {title: charts.tooltipContent(data[row], 'hostname'),
+               html: true,
+               trigger: 'manual',
+               container: 'body'});
+            $(rowPercentages[row]).tooltip('show');
+          }
 
-            $(rowPieWedges[row]).mouseover(showTooltip);
-            $(rowPieWedges[row]).mouseout(hideTooltip);
-          })(i);
+          function hideTooltip() {
+            $(rowPercentages[row]).tooltip('destroy');
+          }
+
+          $(rowPieWedges[row]).mouseover(showTooltip);
+          $(rowPieWedges[row]).mouseout(hideTooltip);
         }
+
+        for (var i = 0; i < rows; i++) { initTooltip(i); }
 
         $('.container').click(function() { $('.tooltip').remove(); });
       }

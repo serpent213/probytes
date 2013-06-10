@@ -2,6 +2,7 @@
 
 /* Controllers */
 
+/* global cmp */
 angular.module('probytes.controllers', ['probytes.datetime'])
   .controller('MainCtrl', function($scope, trafficData) {
     trafficData.get().then(function(data) {
@@ -9,12 +10,12 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       document.title += ' [' + data.meta.serverName + ']';
     });
   })
-  .controller('YearlyCtrl', function($scope, $routeParams, trafficData, DateHelper) {
+  .controller('YearlyCtrl', function($scope, $routeParams, DateHelper) {
     $scope.year = +$routeParams.year;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
       $scope.nextLink = null;
-      if (!$scope.traffic) return;
+      if (!$scope.traffic) { return; }
 
       // data scope
 
@@ -39,13 +40,13 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       $scope.yearlySeconds = DateHelper.elapsedSecondsInYear($scope.year);
     });
   })
-  .controller('MonthlyCtrl', function($scope, $routeParams, trafficData, DateHelper) {
+  .controller('MonthlyCtrl', function($scope, $routeParams, DateHelper) {
     $scope.year = +$routeParams.year;
     $scope.month = +$routeParams.month;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
       $scope.nextLink = null;
-      if (!$scope.traffic) return;
+      if (!$scope.traffic) { return; }
 
       // data scope
 
@@ -76,12 +77,12 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       $scope.monthlySeconds = DateHelper.elapsedSecondsInMonth($scope.year, $scope.month);
     });
   })
-  .controller('HostCtrl', function($scope, $routeParams, $filter, trafficData) {
+  .controller('HostCtrl', function($scope, $routeParams, $filter) {
     $scope.hostname = $routeParams.hostname;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
       $scope.nextLink = null;
-      if (!$scope.traffic) return;
+      if (!$scope.traffic) { return; }
 
       // data scope
 

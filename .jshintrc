@@ -21,5 +21,10 @@
   "smarttabs": true,
   "globals": {
     "angular": false
-  }
+  },
+  "predef": [
+    "$",
+    "_",
+    "d3"
+  ]
 }

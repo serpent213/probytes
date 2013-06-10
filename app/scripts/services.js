@@ -30,17 +30,17 @@ angular.module('probytes.services', [])
           ]
           */
 
-          var byYearRaw = _(data.traffic).groupBy('year');
+          var byYearRaw = _(data.traffic).groupBy('year'),
+              byYear  = {};
 
-          var byYear = {};
-          for (var year in byYearRaw) {
-            byYear[year] = _(_(byYearRaw[year]).reduce(function(memo, monthly) {
-              if (!memo.hasOwnProperty(monthly.hostname)) memo[monthly.hostname] = {hostname: monthly.hostname, requests: 0, bytes: 0};
-              memo[monthly.hostname]['requests'] += monthly.requests;
-              memo[monthly.hostname]['bytes'] += monthly.bytes;
-              return memo;
-            }, {})).map(_.identity);
+          function yearReducer(memo, monthly) {
+            if (!memo.hasOwnProperty(monthly.hostname)) { memo[monthly.hostname] = {hostname: monthly.hostname, requests: 0, bytes: 0}; }
+            memo[monthly.hostname].requests += monthly.requests;
+            memo[monthly.hostname].bytes += monthly.bytes;
+            return memo;
           }
+
+          for (var year in byYearRaw) { byYear[year] = _(_(byYearRaw[year]).reduce(yearReducer, {})).map(_.identity); }
           transformed.byYear = byYear;
 
           /*
@@ -60,7 +60,7 @@ angular.module('probytes.services', [])
           */
 
           var byMonth = {};
-          for (var year in byYearRaw) byMonth[year] = _(byYearRaw[year]).groupBy('month');
+          for (year in byYearRaw) { byMonth[year] = _(byYearRaw[year]).groupBy('month'); }
           transformed.byMonth = byMonth;
 
           /*

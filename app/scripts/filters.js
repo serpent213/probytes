@@ -7,7 +7,7 @@ angular.module('probytes.filters', [])
     var pfx = {
       binaryPrefixFactory: function(value) {
         if (Array.isArray(value)) {
-          value = Math.max.apply(null, value.map(function(d) { return Math.abs(d) }));
+          value = Math.max.apply(null, value.map(function(d) { return Math.abs(d); }));
         } else {
           value = Math.abs(value);
         }
@@ -25,7 +25,7 @@ angular.module('probytes.filters', [])
       },
       decimalPrefixFactory: function(value) {
         if (Array.isArray(value)) {
-          value = Math.max.apply(null, value.map(function(d) { return Math.abs(d) }));
+          value = Math.max.apply(null, value.map(function(d) { return Math.abs(d); }));
         } else {
           value = Math.abs(value);
         }
