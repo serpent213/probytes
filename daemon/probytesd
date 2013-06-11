@@ -117,11 +117,13 @@ class Traffic
   end
 
   def mockup
-    hostwords = %w{amet consetetur diam dolor eirmod elitr invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor}
-    tlds = %w{.com .net .org .de}
-    product = hostwords.product(tlds)
-    hostnames = product.sample(product.size / 3).map(&:join)
+    hostwords   = %w{amet consetetur diam dolor eirmod elitr invidunt ipsum labore lorem magna nonumy sadipscing sed sit tempor}
+    tlds        = %w{.com .net .org .de}
+    product     = hostwords.product(tlds)
+    hostnames   = product.sample(product.size / 3).map(&:join)
     hosttraffic = {}
+    records     = 0
+    starttime   = Time.now
 
     # initialise
     hostnames.each do |hostname|
@@ -138,6 +140,7 @@ class Traffic
         increment_host(hostname, hosttraffic[hostname][:bytes], hosttraffic[hostname][:requests])
         hosttraffic[hostname][:bytes] = (hosttraffic[hostname][:bytes] * (rand() * 0.3 + 0.85)).floor
         hosttraffic[hostname][:requests] = (hosttraffic[hostname][:requests] * (rand() * 0.3 + 0.85)).floor
+        records += 1
       end
       update_stats(fake_time)
     end
@@ -151,6 +154,10 @@ class Traffic
       year = time.year
       (1 .. time.month - 1).each {|month| inject_month.call(hostnames, month, year) }
     end
+
+    elapsed            = Time.now - startttime
+    records_per_second = records.to_f / elapsed
+    Logger.notice("created #{records} records for #{hostnames.size} hosts in #{elapsed % '.2f'} s (#{records_per_second % '.2f'} records/s)")
   end
 end
 
@@ -328,8 +335,9 @@ opt_parser = OptionParser.new do |opt|
     exit(0)
   end
 
-  opt.on('-m', '--mockup', 'fill DB with fake data, then exit') do
-    options[:mockup] = true
+  opt.on('-m', '--mockup', 'fill DB with fake data, then exit (implies -f)') do
+    options[:mockup]     = true
+    options[:foreground] = true
   end
 
   opt.on('-p', '--playback', 'only export frontend and data, no input processing') do
