@@ -11,11 +11,6 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
       link: function(scope, element /* , attrs */) {
         element.addClass('navbar navbar-inverse');
 
-        $timeout(function() { // wait for DOM update
-          // avoid navigating to "#"
-          $('.navbar .dropdown-toggle').click(function(e) { e.preventDefault(); });
-        }, 100); // 0 does not reliably work here
-
         var setActive = function(newLocation) {
           $timeout(function() { // wait for DOM update
             // using "element" as context does not work for some reason
