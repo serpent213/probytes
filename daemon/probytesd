@@ -123,6 +123,7 @@ class Traffic
     hostnames = product.sample(product.size / 3).map(&:join)
     hosttraffic = {}
 
+    # initialise
     hostnames.each do |hostname|
       hosttraffic[hostname] = {
         :bytes => (rand()**2.3 * 23 * 2**30).floor,
@@ -130,6 +131,7 @@ class Traffic
       }
     end
 
+    # iterate
     inject_month = ->(hostnames, month, year) do
       fake_time = Time.local(year, month)
       hostnames.each do |hostname|
