@@ -11,7 +11,7 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       if ($scope.traffic.raw.length === 0) { $location.path('/nodata'); }
     });
   })
-  .controller('NoDataCtrl', function($scope, $location, trafficData) {
+  .controller('NoDataCtrl', function($scope, $location) {
     $scope.$watch('traffic', function() {
       if (!$scope.traffic) { return; }
       if ($scope.traffic.raw.length > 0) { $location.path('/'); }
