@@ -50,7 +50,6 @@ class Traffic
     @config = eval(File.read(config_file || CONFIG_FILE))
     @frontend_dir = @config[:frontend_dir]
     @frontend_dir += '/' unless @frontend_dir.match(/\/$/)
-    update_frontend_static
   end
 
   def open_db
@@ -91,10 +90,6 @@ class Traffic
       update_frontend_data
       @host_traffic = {}
     end
-  end
-
-  def update_frontend_static
-    FileUtils.cp_r(Dir['dist/*'], @frontend_dir)
   end
 
   def update_frontend_data
@@ -155,9 +150,9 @@ class Traffic
       (1 .. time.month - 1).each {|month| inject_month.call(hostnames, month, year) }
     end
 
-    elapsed            = Time.now - startttime
+    elapsed            = Time.now - starttime
     records_per_second = records.to_f / elapsed
-    Logger.notice("created #{records} records for #{hostnames.size} hosts in #{elapsed % '.2f'} s (#{records_per_second % '.2f'} records/s)")
+    Logger.notice("created #{records} records for #{hostnames.size} hosts in #{'%.2f' % elapsed} s (#{'%.2f' % records_per_second} records/s)")
   end
 end
 
