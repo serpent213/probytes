@@ -1,19 +1,15 @@
 <div class="row">
   <div class="span12">
     <div class="well well-large subject-heading">
-      <div class="prev-link">
-        <div ng-switch on="!!prevLink"><div ng-switch-when="true">
-          <a ng-href="#/yearly/{{prevLink.year}}">
-            <i class="icon-chevron-sign-left"></i> {{prevLink.year}}
-          </a>
-        </div></div>
+      <div class="prev-link" ng-show="prevLink">
+        <a ng-href="#/yearly/{{prevLink.year}}">
+          <i class="icon-chevron-sign-left"></i> {{prevLink.year}}
+        </a>
       </div>
-      <div class="next-link">
-        <div ng-switch on="!!nextLink"><div ng-switch-when="true">
-          <a ng-href="#/yearly/{{nextLink.year}}">
-            {{nextLink.year}} <i class="icon-chevron-sign-right"></i>
-          </a>
-        </div></div>
+      <div class="next-link" ng-show="nextLink">
+        <a ng-href="#/yearly/{{nextLink.year}}">
+          {{nextLink.year}} <i class="icon-chevron-sign-right"></i>
+        </a>
       </div>
       <h1>{{year}}</h1>
     </div>
