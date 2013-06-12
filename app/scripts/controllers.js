@@ -9,6 +9,8 @@ angular.module('probytes.controllers', ['probytes.datetime'])
       $scope.traffic = data;
       document.title += ' [' + data.meta.serverName + ']';
       if ($scope.traffic.raw.length === 0) { $location.path('/nodata'); }
+    }, function() { // promise rejected
+      $location.path('/nodata');
     });
   })
   .controller('NoDataCtrl', function($scope, $location) {
