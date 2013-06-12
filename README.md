@@ -6,7 +6,8 @@ Simple and delightful traffic monitoring for your webserver!
 
 * Easy to setup, maintain and develop
 * Secure
-* Fun
+* Optimised for desktop, iPad, Retina displays
+* Scale from Megabytes to Petabytes (or whatever)
 
 ## Components
 
