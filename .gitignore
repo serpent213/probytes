@@ -2,7 +2,7 @@
 .tmp
 /*.sublime-*
 /app/data.json
-/todo.rtf
+/probytes-*.*
 app/components
 dist
 Gemfile.lock
