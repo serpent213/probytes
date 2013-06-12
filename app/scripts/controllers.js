@@ -4,10 +4,17 @@
 
 /* global cmp */
 angular.module('probytes.controllers', ['probytes.datetime'])
-  .controller('MainCtrl', function($scope, trafficData) {
+  .controller('MainCtrl', function($scope, $location, trafficData) {
     trafficData.get().then(function(data) {
       $scope.traffic = data;
       document.title += ' [' + data.meta.serverName + ']';
+      if ($scope.traffic.raw.length === 0) { $location.path('/nodata'); }
+    });
+  })
+  .controller('NoDataCtrl', function($scope, $location, trafficData) {
+    $scope.$watch('traffic', function() {
+      if (!$scope.traffic) { return; }
+      if ($scope.traffic.raw.length > 0) { $location.path('/'); }
     });
   })
   .controller('YearlyCtrl', function($scope, $routeParams, DateHelper) {

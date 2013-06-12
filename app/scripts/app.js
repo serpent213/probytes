@@ -16,6 +16,10 @@ angular.module('probytes', ['probytes.directives', 'probytes.services', 'probyte
         templateUrl: 'views/host.html',
         controller: 'HostCtrl'
       })
+      .when('/nodata', {
+        templateUrl: 'views/nodata.html',
+        controller: 'NoDataCtrl'
+      })
       .otherwise({
         templateUrl: 'views/monthly.html',
         controller: 'MonthlyCtrl'
