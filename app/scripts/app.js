@@ -3,10 +3,6 @@
 angular.module('probytes', ['probytes.directives', 'probytes.services', 'probytes.controllers'])
   .constant('PROBYTES_VERSION', '0.3.0')
   .config(function ($routeProvider) {
-    var localDate = new Date(),
-        localYear = localDate.getFullYear(),
-        localMonth = localDate.getMonth() + 1;
-
     $routeProvider
       .when('/yearly/:year', {
         templateUrl: 'views/yearly.html',
@@ -21,7 +17,8 @@ angular.module('probytes', ['probytes.directives', 'probytes.services', 'probyte
         controller: 'HostCtrl'
       })
       .otherwise({
-        redirectTo: '/monthly/' + localYear + '/' + localMonth
+        templateUrl: 'views/monthly.html',
+        controller: 'MonthlyCtrl'
       });
   })
   .run(function($rootScope, $window) {

@@ -41,12 +41,20 @@ angular.module('probytes.controllers', ['probytes.datetime'])
     });
   })
   .controller('MonthlyCtrl', function($scope, $routeParams, DateHelper) {
-    $scope.year = +$routeParams.year;
-    $scope.month = +$routeParams.month;
     $scope.$watch('traffic', function() {
       $scope.prevLink = null;
       $scope.nextLink = null;
       if (!$scope.traffic) { return; }
+
+      if ($routeParams.year && $routeParams.month) {
+        $scope.year  = +$routeParams.year;
+        $scope.month = +$routeParams.month;
+      } else {
+        // default route
+        var latestMonth = $scope.traffic.raw.sort(function (a, b) { return cmp(b.year, a.year) || cmp(b.month, a.month); })[0];
+        $scope.year  = latestMonth.year;
+        $scope.month = latestMonth.month;
+      }
 
       // data scope
 
