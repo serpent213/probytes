@@ -113,13 +113,16 @@ angular.module('probytes.directives', ['probytes.charts', 'probytes.filters'])
             piePercent += p;
             i++;
           }
-          pieData.push({
-            hostname: 'others',
-            bytes: totalBytes - pieBytes,
-            requests: totalRequests - pieRequests,
-            avgReqSize: (totalBytes - pieBytes) / (totalRequests - pieRequests),
-            percent: 100 - piePercent
-          });
+
+          if (piePercent < 100) {
+            pieData.push({
+              hostname: 'others',
+              bytes: totalBytes - pieBytes,
+              requests: totalRequests - pieRequests,
+              avgReqSize: (totalBytes - pieBytes) / (totalRequests - pieRequests),
+              percent: 100 - piePercent
+            });
+          }
 
           $rootScope.$watch('windowWidth', function(/* newVal, oldVal */) {
             Charts.pieChart(element, pieData);
