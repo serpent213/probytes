@@ -23,7 +23,7 @@ probytesd_group=${probytesd_group:-"www"}
 name=probytesd
 rcvar=probytesd_enable
 
-command="/usr/local/bin/${name}"
+command="/usr/local/sbin/${name}"
 command_args="-u ${probytesd_user} -g ${probytesd_group}"
 command_interpreter="ruby"
 
