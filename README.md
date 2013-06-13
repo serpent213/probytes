@@ -11,7 +11,7 @@ Simple and delightful traffic monitoring for your webserver!
 
 ## Components
 
-proper:bytes (p:b) consists of a smallish Ruby daemon for data collection and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
+proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a custom logfile and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
 
 ## Screenshot
 
@@ -21,9 +21,28 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection and a 
 
 <img src="docs/dataflow.png" alt="dataflow diagram" width="778" height="374">
 
+## System requirements
+
+* Some UNIX flavour
+* PostgreSQL
+* MRI-Ruby 1.9 or compatible with pg and EventMachine
+* Server producing a traffic logfile (see below)
+
 ## Installation
 
-* [FreeBSD](docs/installation-freebsd.md)
+* [FreeBSD with nginx](docs/installation-freebsd.md)
+
+## Logfile format
+
+    <hostname> <bytes received> <bytes sent>
+
+One row represents one request.
+
+### Example
+
+    consetetur.org 3492 1393844
+    lorem.de 4220 60119
+    consetetur.org 3821 920377
 
 ## Development
 
