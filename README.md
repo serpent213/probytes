@@ -19,7 +19,7 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection and a 
 
 ## Dataflow
 
-<img src="docs/dataflow.png" alt="dataflow diagram" width="788" height="374">
+<img src="docs/dataflow.png" alt="dataflow diagram" width="778" height="374">
 
 ## Installation
 
