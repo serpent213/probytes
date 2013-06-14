@@ -2,6 +2,8 @@
 
 Simple and delightful traffic monitoring for your webserver!
 
+<a class="button primary bigger" href="http://pbdemo.teralink.net">Demo</a>
+
 ## Goals
 
 * Easy to setup, maintain and develop
@@ -31,6 +33,7 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a
 
 ## Installation
 
+* [Download](http://pbdist.teralink.net)
 * [FreeBSD with nginx](docs/installation-freebsd.md)
 
 ## Logfile format
