@@ -12,15 +12,15 @@ Simple and delightful traffic monitoring for your webserver!
 * Scale from Megabytes to Petabytes (or whatever)
 * [Milestones](https://github.com/improper/probytes/issues/milestones)
 
-## Components
-
-proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a custom logfile and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
-
 ## Screenshot
 
 <img src="docs/screenshot.png" alt="webbrowser screenshot" width="852" height="794">
 
-## Dataflow
+## Components
+
+proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a custom logfile and a not-so-smallish JavaScript client. The daemon exports a static JSON dataset for consumption by the client, no web accessible server component is required.
+
+### Dataflow
 
 <img src="docs/dataflow.png" alt="dataflow diagram" width="778" height="374">
 
@@ -40,7 +40,7 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a
 
     <hostname> <bytes received> <bytes sent>
 
-One row represents one request.
+One line represents one request.
 
 ### Example
 
