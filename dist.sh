@@ -15,5 +15,4 @@ tar cjf probytes/probytes-$version.tar.bz2 \
   probytes/LICENCE.md \
   probytes/README.md \
   probytes/daemon \
-  probytes/dist \
-  probytes/docs
+  probytes/dist
