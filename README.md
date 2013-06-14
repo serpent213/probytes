@@ -8,6 +8,7 @@ Simple and delightful traffic monitoring for your webserver!
 * Secure
 * Optimised for desktop, iPad, Retina displays
 * Scale from Megabytes to Petabytes (or whatever)
+* [Milestones](https://github.com/improper/probytes/issues/milestones)
 
 ## Components
 
