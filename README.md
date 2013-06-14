@@ -2,7 +2,7 @@
 
 Simple and delightful traffic monitoring for your webserver!
 
-<a class="button primary bigger" href="http://pbdemo.teralink.net">Demo</a>
+<a target="_blank" href="http://pbdemo.teralink.net"><img src="docs/demo-button.png" alt="Demo" width="74" height="30"></a>
 
 ## Goals
 
