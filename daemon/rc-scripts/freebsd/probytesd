@@ -34,5 +34,8 @@ required_files="/usr/local/etc/${name}.conf.rb"
 unset probytesd_user
 unset probytesd_group
 
+# make ruby available
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
 load_rc_config $name
 run_rc_command "$1"
