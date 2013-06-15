@@ -35,7 +35,8 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a
 ## Installation
 
 * [Download](http://pbdist.teralink.net)
-* [FreeBSD with nginx](docs/installation-freebsd.md)
+* [FreeBSD with nginx](docs/installation-freebsd-nginx.md)
+* [Ubuntu with Apache](docs/installation-ubuntu-apache.md)
 
 ## Logfile format
 
