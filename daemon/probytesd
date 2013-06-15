@@ -293,8 +293,12 @@ class Daemon
 
     # supervisor process
 
+    shutdown = -> { File.delete(PID_FILE) }
+    Signal.trap(:INT)  { shutdown.call }
+    Signal.trap(:TERM) { shutdown.call }
+
     Process.wait(child_pid)
-    File.delete(PID_FILE)
+    shutdown.call
   end
 end
 
