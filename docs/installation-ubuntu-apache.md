@@ -13,10 +13,10 @@
 
         mkdir -p /usr/local/lib
         cd /usr/local/lib
-        curl -O http://pbdist.teralink.net/probytes-0.5.0.tar.bz2
-        [ `sha256sum probytes-0.5.0.tar.bz2 | cut -d ' ' -f 1` = b822971fd0206f0f7852ae8924765e797e08e076739024a1e0c693c1a4b4abcd ] || echo checksum mismatch
-        tar xjf probytes-0.5.0.tar.bz2
-        rm probytes-0.5.0.tar.bz2
+        curl -O http://pbdist.teralink.net/probytes-LATEST.tar.bz2
+        curl https://raw.github.com/improper/probytes/master/SHA256SUMS | shasum -c
+        tar xjf probytes-LATEST.tar.bz2
+        rm probytes-LATEST.tar.bz2
         chown -R www-data:www-data probytes
         cd probytes
         (cd daemon && bundle install)

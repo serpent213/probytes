@@ -17,10 +17,11 @@
 
         mkdir -p /usr/local/lib
         cd /usr/local/lib
-        fetch http://pbdist.teralink.net/probytes-0.5.0.tar.bz2
-        [ `sha256 -q probytes-0.5.0.tar.bz2` = b822971fd0206f0f7852ae8924765e797e08e076739024a1e0c693c1a4b4abcd ] || echo checksum mismatch
-        tar xjf probytes-0.5.0.tar.bz2
-        rm probytes-0.5.0.tar.bz2
+        fetch http://pbdist.teralink.net/probytes-LATEST.tar.bz2
+        fetch https://raw.github.com/improper/probytes/master/SHA256SUMS
+        shasum -c SHA256SUMS
+        tar xjf probytes-LATEST.tar.bz2
+        rm probytes-LATEST.tar.bz2 SHA256SUMS
         chown -R www:www probytes
         cd probytes
         (cd daemon && bundle install)

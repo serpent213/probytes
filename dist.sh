@@ -15,7 +15,8 @@ tar cjf probytes/probytes-$version.tar.bz2 \
   probytes/LICENCE.md \
   probytes/README.md \
   probytes/daemon \
-  probytes/dist
+  probytes/dist \
+  probytes/docs
 
 echo
 shasum -a 256 probytes/probytes-$version.tar.bz2
