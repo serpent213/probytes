@@ -7,6 +7,9 @@
   # expected nginx config:
   #   log_format traffic '$host $request_length $bytes_sent';
   #   access_log /var/log/nginx-traffic.log traffic;
+  # Apache:
+  #   LogFormat "%v %I %O" traffic
+  #   CustomLog ${APACHE_LOG_DIR}/traffic.log traffic
   :logfiles => ['/var/log/nginx-traffic.log'],
 
   # hostname translation

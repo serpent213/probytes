@@ -30,6 +30,7 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a
 * PostgreSQL
 * MRI-Ruby 1.9 or compatible with pg and EventMachine
 * Server producing a traffic logfile (see below)
+* A modern webbrowser
 
 ## Installation
 

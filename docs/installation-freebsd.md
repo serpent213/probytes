@@ -1,6 +1,10 @@
-# proper:bytes FreeBSD installation
+# proper:bytes FreeBSD + nginx installation
 
 1. Create a PostgreSQL database
+
+        createuser --no-superuser --no-createrole --no-createdb --pwprompt traffic
+        createdb --encoding=UTF8 --owner=traffic traffic
+
 2. Make sure MRI-Ruby 1.9 (or compatible), PgSQL client and Bundler are installed, e.g.:
 
         echo 'RUBY_DEFAULT_VERSION=1.9' >> /etc/make.conf
@@ -27,18 +31,20 @@
         cp -r dist/* $FRONTEND_DIR
         echo 'probytesd_enable="YES"' >> /etc/rc.conf
 
-4. Insert into your `/usr/local/etc/nginx/nginx.conf`:
+4. Make sure the frontend directory (at least a file named `data.json`) is writable for user www
+
+5. Insert into your `/usr/local/etc/nginx/nginx.conf`:
 
         log_format traffic '$host $request_length $bytes_sent';
         access_log /var/log/nginx-traffic.log traffic;
 
-5. Append to your `/etc/newsyslog.conf`:
+6. Append to your `/etc/newsyslog.conf`:
 
         /var/log/nginx-traffic.log              644  3     1024 *     JC    /var/run/nginx.pid
 
-6. Execute:
+7. Execute:
 
         /usr/local/etc/rc.d/nginx reload
         /usr/local/etc/rc.d/probytesd start
 
-7. Open the client in the browser, depending on the target directory you set in `probytesd.conf.rb`.
+8. Open the client in the browser, depending on the target directory you set in `probytesd.conf.rb`.
