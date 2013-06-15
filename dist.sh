@@ -8,7 +8,7 @@ grunt build
 
 version=`grep version component.json | cut -d '"' -f 4`
 
-cd ..
+(cd .. && \
 tar cjf probytes/probytes-$version.tar.bz2 \
   --exclude dist/components \
   --exclude Gemfile.lock \
@@ -16,7 +16,8 @@ tar cjf probytes/probytes-$version.tar.bz2 \
   probytes/README.md \
   probytes/daemon \
   probytes/dist \
-  probytes/docs
+  probytes/docs \
+)
 
 echo
-shasum -a 256 probytes/probytes-$version.tar.bz2
+shasum -a 256 probytes-$version.tar.bz2

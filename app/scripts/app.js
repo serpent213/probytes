@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('probytes', ['probytes.directives', 'probytes.services', 'probytes.controllers'])
-  .constant('PROBYTES_VERSION', '0.5.0')
+  .constant('PROBYTES_VERSION', '0.5.1')
   .config(function ($routeProvider) {
     $routeProvider
       .when('/yearly/:year', {
