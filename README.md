@@ -14,7 +14,7 @@ Simple and delightful traffic monitoring for your webserver!
 
 ## Screenshot
 
-<img src="docs/screenshot.png" alt="webbrowser screenshot" width="852" height="794">
+<img src="docs/screenshot.png" alt="webbrowser screenshot" width="722" height="673">
 
 ## Components
 
@@ -22,7 +22,7 @@ proper:bytes (p:b) consists of a smallish Ruby daemon for data collection from a
 
 ### Dataflow
 
-<img src="docs/dataflow.png" alt="dataflow diagram" width="778" height="374">
+<img src="docs/dataflow.png" alt="dataflow diagram" width="722" height="347">
 
 ## System requirements
 
